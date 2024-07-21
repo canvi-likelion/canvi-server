@@ -73,6 +73,20 @@ public class AuthService {
     }
 
     @Transactional
+    public void logoutUser(String accessToken) {
+        if (accessToken != null && accessToken.startsWith("Bearer ")) {
+            accessToken = accessToken.substring(7);
+        }
+
+        String username = tokenProvider.getUsernameFromJWT(accessToken);
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
+
+        user.clearRefreshToken();
+        userRepository.save(user);
+    }
+
+    @Transactional
     public RefreshTokenResponse generateNewAccessTokenFromRefreshToken(String refreshToken) {
         if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
             refreshToken = refreshToken.substring(7);
