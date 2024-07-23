@@ -38,6 +38,8 @@ public class SecurityConfig {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(authorize -> authorize
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/v3/api-docs/**").permitAll()
+                        .requestMatchers("/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .exceptionHandling(exceptions -> exceptions
@@ -59,16 +61,6 @@ public class SecurityConfig {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
-    }
-
-
-    // NON_AUTHENTICATED에 담긴 패턴은 ignore
-    @Bean
-    public WebSecurityCustomizer securityCustomizer() {
-        final String[] NON_AUTHENTICATED = {
-                "/**"
-        };
-        return web -> web.ignoring().requestMatchers(NON_AUTHENTICATED);
     }
 
 

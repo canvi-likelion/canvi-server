@@ -74,9 +74,11 @@ public class AuthService {
 
     @Transactional
     public void logoutUser(String accessToken) {
-        if (accessToken != null && accessToken.startsWith("Bearer ")) {
-            accessToken = accessToken.substring(7);
+        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+            throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
         }
+
+        accessToken = accessToken.substring(7);
 
         String username = tokenProvider.getUsernameFromJWT(accessToken);
         User user = userRepository.findByUsername(username)
