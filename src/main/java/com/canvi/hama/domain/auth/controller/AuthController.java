@@ -9,6 +9,7 @@ import com.canvi.hama.domain.auth.dto.TokenResponse;
 import com.canvi.hama.domain.auth.service.AuthService;
 import com.canvi.hama.domain.auth.swagger.RefreshAccessTokenApi;
 import com.canvi.hama.domain.auth.swagger.UserAuthenticateApi;
+import com.canvi.hama.domain.auth.swagger.UserLogoutApi;
 import com.canvi.hama.domain.auth.swagger.UserRegisterApi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +42,7 @@ public class AuthController {
         return ResponseEntity.ok(new BaseResponse<>(tokenResponse));
     }
 
+    @UserLogoutApi
     @PostMapping("/logout")
     public ResponseEntity<BaseResponse<Void>> logoutUser(@RequestHeader("Authorization") String accessToken) {
         authService.logoutUser(accessToken);
