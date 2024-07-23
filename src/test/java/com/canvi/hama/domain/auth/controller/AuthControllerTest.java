@@ -131,4 +131,36 @@ public class AuthControllerTest {
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CONFLICT.value());
     }
+
+    @Test
+    public void whenLogout_thenReturnsSuccess() {
+        // 먼저 로그인
+        LoginRequest loginRequest = new LoginRequest("testuser", "password123");
+        Response loginResponse = given()
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .post("/api/auth/login");
+        String accessToken = loginResponse.jsonPath().getString("result.accessToken");
+
+        // 로그아웃
+        Response logoutResponse = given()
+                .header("Authorization", "Bearer " + accessToken)
+                .when()
+                .post("/api/auth/logout")
+                .then()
+                .extract().response();
+
+        assertThat(logoutResponse.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+
+        // 로그아웃 후 리프레시 토큰으로 새 액세스 토큰 요청 시 실패해야 함
+        String refreshToken = loginResponse.jsonPath().getString("result.refreshToken");
+        Response refreshResponse = given()
+                .header("Authorization", "Bearer " + refreshToken)
+                .when()
+                .post("/api/auth/refresh")
+                .then()
+                .extract().response();
+
+        assertThat(refreshResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
 }
