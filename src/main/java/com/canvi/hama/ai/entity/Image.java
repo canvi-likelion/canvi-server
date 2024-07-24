@@ -1,25 +1,26 @@
 package com.canvi.hama.ai.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
+import com.canvi.hama.diary.entity.Diary;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "image")
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Image extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
+    private Long id;
 
-    @Column(name = "id", nullable = false)
-    private int diaryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_id", referencedColumnName = "id", nullable = false)
+    private Diary diary;
 
     @Column(name = "url", nullable = false)
     private String url;
-
 }

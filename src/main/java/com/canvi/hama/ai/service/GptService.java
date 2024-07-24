@@ -17,6 +17,7 @@ import org.springframework.stereotype.Service;
 
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -42,9 +43,11 @@ public class GptService {
     public String getChatGptResponse(AiRequest request) {
         validationPrompt(request.getPrompt());
 
+        String translatedPrompt = papagoService.getPapago(request.getPrompt());
+
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(OPENAI_API_URL);
-            httpPost.setHeader("Content-Type", "application/json");
+            httpPost.setHeader("Content-Type", "application/json; charset=UTF-8");
             httpPost.setHeader("Authorization", "Bearer " + openaiApiKey);
 
             Map<String, Object> requestBody = new HashMap<>();
@@ -59,16 +62,16 @@ public class GptService {
                             "Please just write it in text." +
                             "Please answer in honorifics in Korean."),
 
-                    Map.of("role", "user", "content", "The contents of the diary are as follows.\n" + request.getPrompt())
+                    Map.of("role", "user", "content", "The contents of the diary are as follows.\n" + translatedPrompt)
             );
 
             requestBody.put("messages", messages);
 
-            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(requestBody));
+            StringEntity entity = new StringEntity(objectMapper.writeValueAsString(requestBody), StandardCharsets.UTF_8);
             httpPost.setEntity(entity);
 
             try (CloseableHttpResponse response = httpClient.execute(httpPost)) {
-                String responseBody = EntityUtils.toString(response.getEntity());
+                String responseBody = EntityUtils.toString(response.getEntity(), StandardCharsets.UTF_8);
                 Map<String, Object> responseJson = objectMapper.readValue(responseBody, Map.class);
 
                 List<Map<String, Object>> choices = (List<Map<String, Object>>) responseJson.get("choices");

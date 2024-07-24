@@ -1,28 +1,31 @@
 package com.canvi.hama.ai.entity;
 
-
 import com.canvi.hama.common.entity.BaseEntity;
+import com.canvi.hama.diary.entity.Diary;
+import com.canvi.hama.domain.user.domain.User;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Table(name = "comment")
-@Data
+@Getter
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Comment extends BaseEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    private Long id;
 
-    @Column(name = "id")
-    private Integer diaryId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "diary_id", referencedColumnName = "id", nullable = false)
+    private Diary diary;
 
-    @Column(name = "id")
-    private Integer userId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    private User user;
 
-    @Column(name = "text", nullable = false)
+    @Column(name = "text", nullable = false, columnDefinition = "TEXT")
     private String text;
 }
