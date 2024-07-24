@@ -4,6 +4,7 @@ import com.canvi.hama.diary.entity.Comment;
 import com.canvi.hama.diary.entity.Diary;
 import com.canvi.hama.diary.entity.Image;
 import com.canvi.hama.diary.exception.DiaryException;
+import com.canvi.hama.diary.repository.CommentRepository;
 import com.canvi.hama.diary.repository.ImageRepository;
 import com.canvi.hama.diary.request.CommentSaveRequest;
 import com.canvi.hama.diary.request.DiaryRequest;
@@ -28,11 +29,13 @@ public class DiaryController {
 
     private final DiaryService diaryService;
     private final ImageRepository imageRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
-    public DiaryController(DiaryService diaryService, ImageRepository imageRepository) {
+    public DiaryController(DiaryService diaryService, ImageRepository imageRepository, CommentRepository commentRepository) {
         this.diaryService = diaryService;
         this.imageRepository = imageRepository;
+        this.commentRepository = commentRepository;
     }
 
     @PostMapping("/save")
@@ -53,15 +56,24 @@ public class DiaryController {
         return ResponseEntity.status(HttpStatus.CREATED).body("comment 저장 성공");
     }
 
+    @GetMapping("comment/{diaryId}")
+    public ResponseEntity<?> getComment(@PathVariable Long diaryId) {
+        Comment comment = commentRepository.findByDiaryId(diaryId)
+                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+
+        return ResponseEntity.ok(comment);
+    }
+
     @PostMapping("/image/save")
     public ResponseEntity<?> saveImage(@RequestBody ImageSaveRequest imageSaveRequest) {
+
         diaryService.saveImageFromUrl(imageSaveRequest.getDiaryId(), imageSaveRequest.getImageUrl());
         return ResponseEntity.status(HttpStatus.CREATED).body("이미지 저장 완료");
     }
 
-    @GetMapping("/image/{imageId}")
-    public ResponseEntity<byte[]> getImage(@PathVariable Long imageId) {
-        Image image = imageRepository.findById(imageId)
+    @GetMapping("/image/{diaryId}")
+    public ResponseEntity<byte[]> getImage(@PathVariable Long diaryId) {
+        Image image = imageRepository.findByDiaryId(diaryId)
                 .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
 
         try {
