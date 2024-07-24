@@ -8,8 +8,8 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface DiaryRepository extends JpaRepository<Diary, Integer> {
+public interface DiaryRepository extends JpaRepository<Diary, Long> {
 
-    List<Diary> findByUserId(Integer userId);
+    List<Diary> findByUserId(Long userId);
 
 }

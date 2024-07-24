@@ -22,7 +22,9 @@ public class DiaryController {
     }
 
     @PostMapping("/save")
-    public ResponseEntity<?> saveDiary(@RequestBody DiaryRequest diaryRequest) {
+    public ResponseEntity<?> saveDiary(
+            @RequestBody DiaryRequest diaryRequest
+    ) {
 
         diaryService.saveDiary(diaryRequest);
 
@@ -30,7 +32,7 @@ public class DiaryController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<List<Diary>> getDiariesByUserId(@PathVariable Integer userId) {
+    public ResponseEntity<List<Diary>> getDiariesByUserId(@PathVariable Long userId) {
         List<Diary> diaries = diaryService.getDiariesByUserId(userId);
         return ResponseEntity.ok(diaries);
     }
