@@ -1,4 +1,4 @@
-package com.canvi.hama.ai.entity;
+package com.canvi.hama.diary.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
 import com.canvi.hama.diary.entity.Diary;
@@ -26,6 +26,6 @@ public class Comment extends BaseEntity {
     @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
     private User user;
 
-    @Column(name = "text", nullable = false, columnDefinition = "TEXT")
-    private String text;
+    @Column(name = "comment", nullable = false, columnDefinition = "TEXT")
+    private String comment;
 }

@@ -1,8 +1,10 @@
 package com.canvi.hama.diary.service;
 
+import com.canvi.hama.diary.entity.Comment;
 import com.canvi.hama.diary.entity.Diary;
 import com.canvi.hama.diary.entity.Image;
 import com.canvi.hama.diary.exception.DiaryException;
+import com.canvi.hama.diary.repository.CommentRepository;
 import com.canvi.hama.diary.repository.DiaryRepository;
 import com.canvi.hama.diary.repository.ImageRepository;
 import com.canvi.hama.diary.request.DiaryRequest;
@@ -24,12 +26,14 @@ public class DiaryService {
 
     private final DiaryRepository diaryRepository;
     private final ImageRepository imageRepository;
+    private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
     @Autowired
-    public DiaryService(DiaryRepository diaryRepository, ImageRepository imageRepository, UserRepository userRepository) {
+    public DiaryService(DiaryRepository diaryRepository, ImageRepository imageRepository, CommentRepository commentRepository, UserRepository userRepository) {
         this.diaryRepository = diaryRepository;
         this.imageRepository = imageRepository;
+        this.commentRepository = commentRepository;
         this.userRepository = userRepository;
     }
 
@@ -53,6 +57,16 @@ public class DiaryService {
     public User getUserByUserId(Long userId) {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+    }
+
+    public void saveComment(Long diaryId, Long userId, String comment) {
+        Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+
+        User user = userRepository.findById(userId).orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+
+        Comment saveComment = Comment.builder().diary(diary).user(user).comment(comment).build();
+
+        commentRepository.save(saveComment);
     }
 
     public void saveImageFromUrl(Long diaryId, String imageUrl) {

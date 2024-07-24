@@ -1,9 +1,11 @@
 package com.canvi.hama.diary.controller;
 
+import com.canvi.hama.diary.entity.Comment;
 import com.canvi.hama.diary.entity.Diary;
 import com.canvi.hama.diary.entity.Image;
 import com.canvi.hama.diary.exception.DiaryException;
 import com.canvi.hama.diary.repository.ImageRepository;
+import com.canvi.hama.diary.request.CommentSaveRequest;
 import com.canvi.hama.diary.request.DiaryRequest;
 import com.canvi.hama.diary.request.ImageSaveRequest;
 import com.canvi.hama.diary.response.DiaryResponseStatus;
@@ -45,7 +47,11 @@ public class DiaryController {
         return ResponseEntity.ok(diaries);
     }
 
-
+    @PostMapping("/comment/save")
+    public ResponseEntity<?> saveComment(@RequestBody CommentSaveRequest commentSaveRequest) {
+        diaryService.saveComment(commentSaveRequest.getDiaryId(), commentSaveRequest.getUserId(), commentSaveRequest.getComment());
+        return ResponseEntity.status(HttpStatus.CREATED).body("comment 저장 성공");
+    }
 
     @PostMapping("/image/save")
     public ResponseEntity<?> saveImage(@RequestBody ImageSaveRequest imageSaveRequest) {
