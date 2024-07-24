@@ -4,6 +4,7 @@ import com.canvi.hama.common.exception.BaseException;
 import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.common.util.EmailValidator;
 import com.canvi.hama.common.util.RedisUtil;
+import com.canvi.hama.domain.user.repository.UserRepository;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -20,6 +21,7 @@ public class EmailAuthService {
 
     private final JavaMailSender mailSender;
     private final RedisUtil redisUtil;
+    private final UserRepository userRepository;
 
     private void checkEmailValidation(String email) {
         if (!EmailValidator.isValidEmail(email)) {
@@ -29,6 +31,10 @@ public class EmailAuthService {
 
     public void sendAuthCode(String email) {
         checkEmailValidation(email);
+        if (userRepository.existsByEmail(email)) {
+            throw new BaseException(BaseResponseStatus.EMAIL_ALREADY_EXISTS);
+        }
+
         String authCode = generateAuthCode();
         redisUtil.setDataExpire(email, authCode, expirationSeconds);
 
