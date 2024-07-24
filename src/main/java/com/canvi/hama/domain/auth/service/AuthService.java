@@ -3,6 +3,7 @@ package com.canvi.hama.domain.auth.service;
 import com.canvi.hama.common.exception.BaseException;
 import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.common.security.JwtTokenProvider;
+import com.canvi.hama.common.util.EmailValidator;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
@@ -26,15 +27,38 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailAuthService emailAuthService;
+
+    private void checkEmailValidation(String email) {
+        if (!EmailValidator.isValidEmail(email)) {
+            throw new BaseException(BaseResponseStatus.INVALID_EMAIL_FORMAT);
+        }
+    }
+
+    @Transactional
+    public boolean isUsernameAvailable(String username) {
+        return !userRepository.existsByUsername(username);
+    }
+
+    @Transactional
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
 
     @Transactional
     public void registerUser(SignupRequest signUpRequest) {
-        if (userRepository.existsByUsername(signUpRequest.username())) {
+        checkEmailValidation(signUpRequest.email());
+
+        if (!isUsernameAvailable(signUpRequest.username())) {
             throw new BaseException(BaseResponseStatus.USERNAME_ALREADY_EXISTS);
         }
 
-        if (userRepository.existsByEmail(signUpRequest.email())) {
+        if (!isEmailAvailable(signUpRequest.email())) {
             throw new BaseException(BaseResponseStatus.EMAIL_ALREADY_EXISTS);
+        }
+
+        if (!emailAuthService.isEmailVerified(signUpRequest.email())) {
+            throw new BaseException(BaseResponseStatus.EMAIL_NOT_VERIFIED);
         }
 
         User user = User.create(
@@ -99,7 +123,10 @@ public class AuthService {
 
         String finalRefreshToken = refreshToken;
         return userRepository.findByUsername(username)
-                .filter(user -> finalRefreshToken.equals(user.getRefreshToken()))
+                .filter(user -> {
+                    assert finalRefreshToken != null;
+                    return finalRefreshToken.equals(user.getRefreshToken());
+                })
                 .map(user -> {
                     String newAccessToken = tokenProvider.generateAccessTokenFromUsername(username);
                     return new RefreshTokenResponse(newAccessToken);
