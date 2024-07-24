@@ -41,6 +41,7 @@ public class SecurityConfig {
                         .requestMatchers("/v3/api-docs/**").permitAll()
                         .requestMatchers("/api/gpt/**").permitAll()
                         .requestMatchers("/api/dalle/**").permitAll()
+                        .requestMatchers("/diary/**").permitAll()
                         .requestMatchers("/swagger-ui/**").permitAll()
                         .anyRequest().authenticated()
                 )

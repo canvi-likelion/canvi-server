@@ -1,4 +1,4 @@
-package com.canvi.hama.ai.entity;
+package com.canvi.hama.diary.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
 import com.canvi.hama.diary.entity.Diary;
