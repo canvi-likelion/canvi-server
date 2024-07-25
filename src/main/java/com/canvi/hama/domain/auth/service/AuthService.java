@@ -4,6 +4,7 @@ import com.canvi.hama.common.exception.BaseException;
 import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.common.security.JwtTokenProvider;
 import com.canvi.hama.common.util.EmailValidator;
+import com.canvi.hama.common.util.RedisUtil;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
@@ -28,6 +29,7 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailAuthService emailAuthService;
+    private final RedisUtil redisUtil;
 
     private void checkEmailValidation(String email) {
         if (!EmailValidator.isValidEmail(email)) {
@@ -84,11 +86,7 @@ public class AuthService {
             String accessToken = tokenProvider.generateAccessToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
-            userRepository.findByUsername(loginRequest.username())
-                    .ifPresent(user -> {
-                        user.updateRefreshToken(refreshToken);
-                        userRepository.save(user);
-                    });
+            redisUtil.setDataExpire(loginRequest.username(), refreshToken, tokenProvider.getRefreshTokenExpirationInSeconds());
 
             return new TokenResponse(accessToken, refreshToken);
         } catch (BadCredentialsException e) {
@@ -103,13 +101,8 @@ public class AuthService {
         }
 
         accessToken = accessToken.substring(7);
-
         String username = tokenProvider.getUsernameFromJWT(accessToken);
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
-
-        user.clearRefreshToken();
-        userRepository.save(user);
+        redisUtil.deleteData(username);
     }
 
     @Transactional
@@ -121,16 +114,12 @@ public class AuthService {
         tokenProvider.validateToken(refreshToken);
         String username = tokenProvider.getUsernameFromJWT(refreshToken);
 
-        String finalRefreshToken = refreshToken;
-        return userRepository.findByUsername(username)
-                .filter(user -> {
-                    assert finalRefreshToken != null;
-                    return finalRefreshToken.equals(user.getRefreshToken());
-                })
-                .map(user -> {
-                    String newAccessToken = tokenProvider.generateAccessTokenFromUsername(username);
-                    return new RefreshTokenResponse(newAccessToken);
-                })
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TOKEN));
+        String storedRefreshToken = redisUtil.getData(username);
+        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+            throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
+        }
+
+        String newAccessToken = tokenProvider.generateAccessTokenFromUsername(username);
+        return new RefreshTokenResponse(newAccessToken);
     }
 }
