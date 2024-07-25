@@ -2,7 +2,7 @@ package com.canvi.hama.ai.service;
 
 import com.canvi.hama.ai.exception.AiException;
 import com.canvi.hama.ai.request.DalleRequest;
-import com.canvi.hama.ai.response.AiRequest;
+import com.canvi.hama.ai.request.AiRequest;
 import com.canvi.hama.ai.response.AiResponseStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.apache.http.client.methods.CloseableHttpResponse;
@@ -84,7 +84,7 @@ public class GptService {
         }
     }
 
-    public String getDallEResponse(DalleRequest request) {
+    public Map<String, Object> getDallEResponse(DalleRequest request) {
         validationPrompt(request.getPrompt());
 
         String translatedPrompt = papagoService.getPapago(request.getPrompt());
@@ -124,7 +124,8 @@ public class GptService {
                 String responseBody = EntityUtils.toString(response.getEntity());
                 Map<String, Object> responseJson = objectMapper.readValue(responseBody, Map.class);
 
-                return objectMapper.writeValueAsString(responseJson);
+
+                return responseJson;
             }
         } catch (IOException e) {
             throw new AiException(AiResponseStatus.INTERNAL_SERVER_ERROR);
