@@ -4,6 +4,7 @@ import com.canvi.hama.common.response.BaseResponse;
 import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
+import com.canvi.hama.domain.auth.dto.ResetPasswordRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.dto.TokenResponse;
 import com.canvi.hama.domain.auth.service.AuthService;
@@ -62,5 +63,11 @@ public class AuthController {
     public ResponseEntity<BaseResponse<String>> findUsernameByEmail(@RequestParam String email) {
         String username = authService.findUsernameByEmail(email);
         return ResponseEntity.ok(new BaseResponse<>(username));
+    }
+
+    @PostMapping("/reset-password")
+    public ResponseEntity<BaseResponse<Void>> resetPassword(@RequestBody ResetPasswordRequest request) {
+        authService.resetPassword(request);
+        return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.SUCCESS));
     }
 }

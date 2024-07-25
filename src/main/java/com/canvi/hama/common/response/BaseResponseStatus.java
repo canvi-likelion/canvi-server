@@ -9,8 +9,8 @@ public enum BaseResponseStatus {
     SUCCESS(true, HttpStatus.OK.value(), "요청에 성공하였습니다."),
 
     /** client error - 4xx */
-
     INVALID_EMAIL_FORMAT(false, HttpStatus.BAD_REQUEST.value(), "유효하지 않은 이메일 형식입니다."),
+    INVALID_FIND_USERNAME_REQUEST(false, HttpStatus.BAD_REQUEST.value(), "해당하는 회원 정보를 찾을 수 없습니다."),
     NON_EXIST_USER(false, HttpStatus.NOT_FOUND.value(), "존재하지 않는 회원입니다."),
     INVALID_TOKEN(false, HttpStatus.UNAUTHORIZED.value(), "유효하지 않은 토큰입니다."),
     TOKEN_NOT_FOUND(false, HttpStatus.UNAUTHORIZED.value(), "토큰을 찾을 수 없습니다."),

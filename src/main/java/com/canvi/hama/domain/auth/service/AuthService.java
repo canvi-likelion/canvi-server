@@ -7,10 +7,12 @@ import com.canvi.hama.common.util.EmailValidator;
 import com.canvi.hama.common.util.RedisUtil;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
+import com.canvi.hama.domain.auth.dto.ResetPasswordRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.dto.TokenResponse;
 import com.canvi.hama.domain.user.dto.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -128,5 +130,27 @@ public class AuthService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
         return user.getUsername();
+    }
+
+    @Transactional
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByUsernameAndEmail(request.username(), request.email())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_FIND_USERNAME_REQUEST));
+
+        String newPassword = generateRandomPassword();
+        user.updatePassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        emailAuthService.sendNewPassword(user.getEmail(), newPassword);
+    }
+
+    private String generateRandomPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 12; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return sb.toString();
     }
 }

@@ -56,15 +56,9 @@ public class User extends BaseEntity {
                 .build();
     }
 
+    public void updatePassword(String password) { this.password = password; }
+
     public void updateCredits(int credits) {
         this.credits = credits;
-    }
-
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public void clearRefreshToken() {
-        this.refreshToken = null;
     }
 }

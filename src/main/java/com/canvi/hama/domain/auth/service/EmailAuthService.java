@@ -61,6 +61,15 @@ public class EmailAuthService {
         return Boolean.TRUE.equals(isVerified);
     }
 
+    public void sendNewPassword(String email, String newPassword) {
+        checkEmailValidation(email);
+        SimpleMailMessage message = new SimpleMailMessage();
+        message.setTo(email);
+        message.setSubject("[hama] 새 비밀번호 안내");
+        message.setText("귀하의 새로운 비밀번호는 " + newPassword + " 입니다. 로그인 후 비밀번호를 변경해주세요.");
+        mailSender.send(message);
+    }
+
     private String generateAuthCode() {
         Random random = new Random();
         int code = 100000 + random.nextInt(900000);

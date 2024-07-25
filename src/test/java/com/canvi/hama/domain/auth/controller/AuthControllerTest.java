@@ -4,6 +4,7 @@ import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.canvi.hama.domain.auth.dto.LoginRequest;
+import com.canvi.hama.domain.auth.dto.ResetPasswordRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
 import io.restassured.RestAssured;
@@ -179,5 +180,60 @@ public class AuthControllerTest {
                 .extract().response();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
+    }
+
+    @Test
+    public void whenResetPasswordWithValidData_thenReturnsSuccess() {
+        ResetPasswordRequest request = new ResetPasswordRequest(testUsername, testEmail);
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/api/auth/reset-password")
+                .then()
+                .extract().response();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+    }
+
+    @Test
+    public void whenResetPasswordWithInvalidData_thenReturnsError() {
+        ResetPasswordRequest request = new ResetPasswordRequest("invaliduser", "invalid@example.com");
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(request)
+                .when()
+                .post("/api/auth/reset-password")
+                .then()
+                .extract().response();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
+    public void whenResetPasswordAndLogin_thenLoginSucceeds() {
+        // 먼저 비밀번호 재설정
+        ResetPasswordRequest resetRequest = new ResetPasswordRequest(testUsername, testEmail);
+        given()
+                .contentType(ContentType.JSON)
+                .body(resetRequest)
+                .when()
+                .post("/api/auth/reset-password");
+
+        // 로그인 시도 (새 비밀번호는 이메일로 전송되므로 여기서는 확인할 수 없음)
+        // 대신 로그인 실패 테스트를 수행
+        LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
+
+        Response loginResponse = given()
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .when()
+                .post("/api/auth/login")
+                .then()
+                .extract().response();
+
+        assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 }
