@@ -37,14 +37,14 @@ public class AuthService {
         }
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean isUsernameAvailable(String username) {
-        return !userRepository.existsByUsername(username);
+        return userRepository.countByUsername(username) == 0;
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public boolean isEmailAvailable(String email) {
-        return !userRepository.existsByEmail(email);
+        return userRepository.countByEmail(email) == 0;
     }
 
     @Transactional
@@ -121,5 +121,12 @@ public class AuthService {
 
         String newAccessToken = tokenProvider.generateAccessTokenFromUsername(username);
         return new RefreshTokenResponse(newAccessToken);
+    }
+
+    @Transactional(readOnly = true)
+    public String findUsernameByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
+        return user.getUsername();
     }
 }

@@ -2,6 +2,7 @@ package com.canvi.hama.domain.auth.controller;
 
 import com.canvi.hama.common.response.BaseResponse;
 import com.canvi.hama.common.response.BaseResponseStatus;
+import com.canvi.hama.domain.auth.dto.FindUsernameRequest;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
@@ -34,7 +35,6 @@ public class AuthController {
         return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.SUCCESS));
     }
 
-
     @UserAuthenticateApi
     @PostMapping("/login")
     public ResponseEntity<BaseResponse<TokenResponse>> authenticateUser(@RequestBody LoginRequest loginRequest) {
@@ -55,5 +55,11 @@ public class AuthController {
             @RequestHeader("Authorization") String refreshToken) {
         RefreshTokenResponse refreshTokenResponse = authService.generateNewAccessTokenFromRefreshToken(refreshToken);
         return ResponseEntity.ok(new BaseResponse<>(refreshTokenResponse));
+    }
+
+    @PostMapping("/find-username")
+    public ResponseEntity<BaseResponse<String>> findUsernameByEmail(@RequestBody FindUsernameRequest request) {
+        String username = authService.findUsernameByEmail(request.email());
+        return ResponseEntity.ok(new BaseResponse<>(username));
     }
 }

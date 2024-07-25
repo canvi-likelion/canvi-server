@@ -3,6 +3,7 @@ package com.canvi.hama.domain.auth.controller;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
+import com.canvi.hama.domain.auth.dto.FindUsernameRequest;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
@@ -151,5 +152,33 @@ public class AuthControllerTest {
                 .extract().response();
 
         assertThat(refreshResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    public void whenFindUsernameByValidEmail_thenReturnsUsername() {
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(new FindUsernameRequest(testEmail))
+                .when()
+                .post("/api/auth/find-username")
+                .then()
+                .extract().response();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.jsonPath().getString("result")).isEqualTo(testUsername);
+    }
+
+    @Test
+    public void whenFindUsernameByInvalidEmail_thenReturnsError() {
+        String invalidEmail = "nonexistent@example.com";
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(new FindUsernameRequest(invalidEmail))
+                .when()
+                .post("/api/auth/find-username")
+                .then()
+                .extract().response();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 }
