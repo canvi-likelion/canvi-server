@@ -46,7 +46,6 @@ public class User extends BaseEntity {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.credits = DEFAULT_CREDITS;
     }
 
     public static User create(String username, String email, String password) {
