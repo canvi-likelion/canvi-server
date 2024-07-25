@@ -1,6 +1,6 @@
 package com.canvi.hama.domain.user.repository;
 
-import com.canvi.hama.domain.user.domain.User;
+import com.canvi.hama.domain.user.dto.User;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;

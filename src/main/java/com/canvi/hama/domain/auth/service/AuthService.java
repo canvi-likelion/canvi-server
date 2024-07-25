@@ -8,7 +8,7 @@ import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.dto.TokenResponse;
-import com.canvi.hama.domain.user.domain.User;
+import com.canvi.hama.domain.user.dto.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
