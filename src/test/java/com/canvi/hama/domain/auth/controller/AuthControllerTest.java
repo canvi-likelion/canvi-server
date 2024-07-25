@@ -3,7 +3,6 @@ package com.canvi.hama.domain.auth.controller;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.canvi.hama.domain.auth.dto.FindUsernameRequest;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
@@ -157,10 +156,10 @@ public class AuthControllerTest {
     @Test
     public void whenFindUsernameByValidEmail_thenReturnsUsername() {
         Response response = given()
-                .contentType(ContentType.JSON)
-                .body(new FindUsernameRequest(testEmail))
+                .contentType(ContentType.URLENC)
+                .param("email", testEmail)
                 .when()
-                .post("/api/auth/find-username")
+                .get("/api/auth/find-username")
                 .then()
                 .extract().response();
 
@@ -172,10 +171,10 @@ public class AuthControllerTest {
     public void whenFindUsernameByInvalidEmail_thenReturnsError() {
         String invalidEmail = "nonexistent@example.com";
         Response response = given()
-                .contentType(ContentType.JSON)
-                .body(new FindUsernameRequest(invalidEmail))
+                .contentType(ContentType.URLENC)
+                .param("email", invalidEmail)
                 .when()
-                .post("/api/auth/find-username")
+                .get("/api/auth/find-username")
                 .then()
                 .extract().response();
 

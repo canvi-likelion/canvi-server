@@ -2,7 +2,6 @@ package com.canvi.hama.domain.auth.controller;
 
 import com.canvi.hama.common.response.BaseResponse;
 import com.canvi.hama.common.response.BaseResponseStatus;
-import com.canvi.hama.domain.auth.dto.FindUsernameRequest;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
@@ -15,10 +14,12 @@ import com.canvi.hama.domain.auth.swagger.UserRegisterApi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Auth")
@@ -57,9 +58,9 @@ public class AuthController {
         return ResponseEntity.ok(new BaseResponse<>(refreshTokenResponse));
     }
 
-    @PostMapping("/find-username")
-    public ResponseEntity<BaseResponse<String>> findUsernameByEmail(@RequestBody FindUsernameRequest request) {
-        String username = authService.findUsernameByEmail(request.email());
+    @GetMapping("/find-username")
+    public ResponseEntity<BaseResponse<String>> findUsernameByEmail(@RequestParam String email) {
+        String username = authService.findUsernameByEmail(email);
         return ResponseEntity.ok(new BaseResponse<>(username));
     }
 }
