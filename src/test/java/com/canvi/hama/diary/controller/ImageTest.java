@@ -24,23 +24,22 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static io.restassured.RestAssured.given;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class DiaryControllerTest {
+public class ImageTest {
 
     @LocalServerPort
     private int port;
 
     private String accessToken;
     private Long userId;
+    private Long diaryId;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
     @Autowired
-    public DiaryControllerTest(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
+    public ImageTest(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
     }
@@ -82,28 +81,6 @@ public class DiaryControllerTest {
 
         userId = user.getId();
 
-    }
-
-    // 일기 저장 확인
-    @Test
-    public void saveDiary() {
-        DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
-
-        given()
-                .header("Authorization", "Bearer " + accessToken)
-                .contentType(ContentType.JSON)
-                .body(diaryRequest)
-                .when()
-                .post("/diary/save")
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body(equalTo("일기 저장 완료"));
-
-    }
-
-    // 일기 불러오기 확인
-    @Test
-    public void getDiariesByUserId() {
         // 일기 저장
         DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
 
@@ -117,7 +94,7 @@ public class DiaryControllerTest {
                 .statusCode(HttpStatus.CREATED.value());
 
         // 저장된 일기 확인
-        Response response = given()
+        Response diaryResponse = given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .when()
@@ -126,10 +103,20 @@ public class DiaryControllerTest {
                 .statusCode(HttpStatus.OK.value())
                 .extract().response();
 
-        List<Diary> diaries = response.jsonPath().getList(".", Diary.class);
-        assertThat(diaries).isNotEmpty();
-        assertThat(diaries.get(0).getTitle()).isEqualTo("Test Title");
-        assertThat(diaries.get(0).getContent()).isEqualTo("Test Content");
+
+        List<Diary> diaries = diaryResponse.jsonPath().getList(".", Diary.class);
+        diaryId = diaries.get(0).getId();
     }
 
+    @Test
+    public void saveImage() {
+        // 이미지 url 가져오기
+
+
+    }
+
+    @Test
+    public void getImageByDiaryId() {
+
+    }
 }

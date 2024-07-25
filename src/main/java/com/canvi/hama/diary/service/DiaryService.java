@@ -64,7 +64,7 @@ public class DiaryService {
 
         User user = userRepository.findById(userId).orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
 
-        Comment saveComment = Comment.builder().diary(diary).user(user).comment(comment).build();
+        Comment saveComment = Comment.builder().diaryId(diary).userId(user).comment(comment).build();
 
         commentRepository.save(saveComment);
     }
@@ -78,7 +78,7 @@ public class DiaryService {
             if (!directory.exists()) {
                 directory.mkdirs(); // Create the directory if it doesn't exist
             }
-            File file = new File(directory, "image_" + diaryId + ".png");
+            File file = new File(directory, "image_" + diaryId + ".jpg");
 
             FileOutputStream out = new FileOutputStream(file);
 

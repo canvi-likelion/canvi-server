@@ -1,8 +1,11 @@
 package com.canvi.hama.diary.controller;
 
+
 import com.canvi.hama.common.security.JwtTokenProvider;
+import com.canvi.hama.diary.entity.Comment;
 import com.canvi.hama.diary.entity.Diary;
 import com.canvi.hama.diary.exception.DiaryException;
+import com.canvi.hama.diary.request.CommentSaveRequest;
 import com.canvi.hama.diary.request.DiaryRequest;
 import com.canvi.hama.diary.response.DiaryResponseStatus;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
@@ -29,18 +32,19 @@ import static org.hamcrest.Matchers.equalTo;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class DiaryControllerTest {
+public class CommentTest {
 
     @LocalServerPort
     private int port;
 
     private String accessToken;
     private Long userId;
+    private Long diaryId;
     private final JwtTokenProvider jwtTokenProvider;
     private final UserRepository userRepository;
 
     @Autowired
-    public DiaryControllerTest(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
+    public CommentTest(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
         this.jwtTokenProvider = jwtTokenProvider;
         this.userRepository = userRepository;
     }
@@ -82,28 +86,6 @@ public class DiaryControllerTest {
 
         userId = user.getId();
 
-    }
-
-    // 일기 저장 확인
-    @Test
-    public void saveDiary() {
-        DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
-
-        given()
-                .header("Authorization", "Bearer " + accessToken)
-                .contentType(ContentType.JSON)
-                .body(diaryRequest)
-                .when()
-                .post("/diary/save")
-                .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body(equalTo("일기 저장 완료"));
-
-    }
-
-    // 일기 불러오기 확인
-    @Test
-    public void getDiariesByUserId() {
         // 일기 저장
         DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
 
@@ -117,7 +99,7 @@ public class DiaryControllerTest {
                 .statusCode(HttpStatus.CREATED.value());
 
         // 저장된 일기 확인
-        Response response = given()
+        Response diaryResponse = given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .when()
@@ -126,10 +108,50 @@ public class DiaryControllerTest {
                 .statusCode(HttpStatus.OK.value())
                 .extract().response();
 
-        List<Diary> diaries = response.jsonPath().getList(".", Diary.class);
-        assertThat(diaries).isNotEmpty();
-        assertThat(diaries.get(0).getTitle()).isEqualTo("Test Title");
-        assertThat(diaries.get(0).getContent()).isEqualTo("Test Content");
+
+        List<Diary> diaries = diaryResponse.jsonPath().getList(".", Diary.class);
+        diaryId = diaries.get(0).getId();
     }
 
+    @Test
+    public void saveComment() {
+        CommentSaveRequest commentSaveRequest = new CommentSaveRequest(diaryId, userId, "Test Comment");
+
+        given()
+                .header("Authorization", "Bearer " + accessToken)
+                .contentType(ContentType.JSON)
+                .body(commentSaveRequest)
+                .when()
+                .post("/diary/comment/save")
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body(equalTo("comment 저장 성공"));
+    }
+
+    @Test
+    public void getCommentByDiaryId() {
+        CommentSaveRequest commentSaveRequest = new CommentSaveRequest(diaryId, userId, "Test Comment");
+
+        given()
+                .header("Authorization", "Bearer " + accessToken)
+                .contentType(ContentType.JSON)
+                .body(commentSaveRequest)
+                .when()
+                .post("/diary/comment/save")
+                .then()
+                .statusCode(HttpStatus.CREATED.value())
+                .body(equalTo("comment 저장 성공"));
+
+        // 저장된 코멘트 확인
+        Response response = given()
+                .header("Authorization", "Bearer " + accessToken)
+                .contentType(ContentType.JSON)
+                .when()
+                .get("/diary/comment/" + diaryId)
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .extract().response();
+
+        assertThat(response.jsonPath().getString("comment")).isEqualTo("Test Comment");
+    }
 }
