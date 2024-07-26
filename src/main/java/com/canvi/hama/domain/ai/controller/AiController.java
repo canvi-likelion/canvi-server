@@ -5,6 +5,9 @@ import com.canvi.hama.domain.ai.request.AiRequest;
 import com.canvi.hama.domain.ai.response.DalleResponse;
 import com.canvi.hama.domain.ai.response.GptResponse;
 import com.canvi.hama.domain.ai.service.GptService;
+import com.canvi.hama.domain.ai.swagger.DalleApi;
+import com.canvi.hama.domain.ai.swagger.GptApi;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 import java.util.Map;
 
+@Tag(name = "OpenAI")
 @RestController
 @RequestMapping("/api")
 public class AiController {
@@ -25,6 +29,7 @@ public class AiController {
     }
 
 
+    @GptApi
     @PostMapping("/gpt")
     public ResponseEntity<?> getChatGptResponse(@RequestBody AiRequest request) {
 
@@ -33,6 +38,7 @@ public class AiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(gptResponse);
     }
 
+    @DalleApi
     @PostMapping("/dalle")
     public ResponseEntity<?> getDallEResponse(@RequestBody DalleRequest request) {
         Map<String, Object> dalleResult = aiService.getDallEResponse(request);
