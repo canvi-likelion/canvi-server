@@ -12,6 +12,13 @@ import com.canvi.hama.domain.diary.request.DiaryRequest;
 import com.canvi.hama.domain.diary.request.ImageSaveRequest;
 import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
 import com.canvi.hama.domain.diary.service.DiaryService;
+import com.canvi.hama.domain.diary.swagger.comment.GetCommentApi;
+import com.canvi.hama.domain.diary.swagger.comment.SaveCommentApi;
+import com.canvi.hama.domain.diary.swagger.diary.GetDiaryApi;
+import com.canvi.hama.domain.diary.swagger.diary.SaveDiaryApi;
+import com.canvi.hama.domain.diary.swagger.image.GetImageApi;
+import com.canvi.hama.domain.diary.swagger.image.SaveImageApi;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -24,6 +31,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
 
+@Tag(name = "Diary")
 @RestController
 @RequestMapping("/diary")
 public class DiaryController {
@@ -41,25 +49,30 @@ public class DiaryController {
         this.commentRepository = commentRepository;
     }
 
+    @SaveDiaryApi
     @PostMapping("/save")
-    public ResponseEntity<?> saveDiary(@RequestBody DiaryRequest diaryRequest) {
+    public ResponseEntity<DiaryResponseStatus> saveDiary(@RequestBody DiaryRequest diaryRequest) {
         diaryService.saveDiary(diaryRequest);
 
-        return ResponseEntity.status(HttpStatus.CREATED).body("일기 저장 완료");
+        return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
     }
 
+    @GetDiaryApi
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Diary>> getDiariesByUserId(@PathVariable Long userId) {
         List<Diary> diaries = diaryService.getDiariesByUserId(userId);
         return ResponseEntity.ok(diaries);
     }
 
+    @SaveCommentApi
     @PostMapping("/comment/save")
-    public ResponseEntity<?> saveComment(@RequestBody CommentSaveRequest commentSaveRequest) {
+    public ResponseEntity<DiaryResponseStatus> saveComment(@RequestBody CommentSaveRequest commentSaveRequest) {
         diaryService.saveComment(commentSaveRequest.getDiaryId(), commentSaveRequest.getUserId(), commentSaveRequest.getComment());
-        return ResponseEntity.status(HttpStatus.CREATED).body("comment 저장 성공");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
     }
 
+    @GetCommentApi
     @GetMapping("/comment/{diaryId}")
     public ResponseEntity<?> getComment(@PathVariable Long diaryId) {
         Diary diary = diaryRepository.findById(diaryId)
@@ -70,13 +83,16 @@ public class DiaryController {
         return ResponseEntity.ok(comments);
     }
 
+    @SaveImageApi
     @PostMapping("/image/save")
-    public ResponseEntity<?> saveImage(@RequestBody ImageSaveRequest imageSaveRequest) {
+    public ResponseEntity<DiaryResponseStatus> saveImage(@RequestBody ImageSaveRequest imageSaveRequest) {
 
         diaryService.saveImageFromUrl(imageSaveRequest.getDiaryId(), imageSaveRequest.getImageUrl());
-        return ResponseEntity.status(HttpStatus.CREATED).body("이미지 저장 완료");
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
     }
 
+    @GetImageApi
     @GetMapping("/image/{diaryId}")
     public ResponseEntity<byte[]> getImage(@PathVariable Long diaryId) {
         Image image = imageRepository.findByDiaryId(diaryId)

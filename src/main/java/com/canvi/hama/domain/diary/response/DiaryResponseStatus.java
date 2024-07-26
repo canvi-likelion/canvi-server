@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 public enum DiaryResponseStatus {
     /** 성공 2xx */
     SUCCESS(true, HttpStatus.OK.value(), "요청에 성공하였습니다."),
+    CREATED(true, HttpStatus.CREATED.value(), "생성되었습니다."),
 
     /** client error - 4xx */
     BAD_REQUEST(false, HttpStatus.BAD_REQUEST.value(), "요청 값이 옳지 않습니다."),
