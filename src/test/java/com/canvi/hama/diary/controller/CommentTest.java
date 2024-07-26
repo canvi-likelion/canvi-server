@@ -2,12 +2,11 @@ package com.canvi.hama.diary.controller;
 
 
 import com.canvi.hama.common.security.JwtTokenProvider;
-import com.canvi.hama.diary.entity.Comment;
-import com.canvi.hama.diary.entity.Diary;
-import com.canvi.hama.diary.exception.DiaryException;
-import com.canvi.hama.diary.request.CommentSaveRequest;
-import com.canvi.hama.diary.request.DiaryRequest;
-import com.canvi.hama.diary.response.DiaryResponseStatus;
+import com.canvi.hama.domain.diary.entity.Diary;
+import com.canvi.hama.domain.diary.exception.DiaryException;
+import com.canvi.hama.domain.diary.request.CommentSaveRequest;
+import com.canvi.hama.domain.diary.request.DiaryRequest;
+import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.user.domain.User;
