@@ -96,12 +96,10 @@ public class AuthService {
         }
     }
 
-    @Transactional
     public void logoutUser(String username) {
         redisUtil.deleteData(username);
     }
 
-    @Transactional
     public RefreshTokenResponse generateNewAccessToken(String username) {
         String storedRefreshToken = redisUtil.getData(username);
         if (storedRefreshToken == null) {
@@ -112,14 +110,12 @@ public class AuthService {
         return new RefreshTokenResponse(newAccessToken);
     }
 
-    @Transactional(readOnly = true)
     public String findUsernameByEmail(String email) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
         return user.getUsername();
     }
 
-    @Transactional
     public void resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByUsernameAndEmail(request.username(), request.email())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_FIND_USERNAME_REQUEST));
@@ -131,7 +127,6 @@ public class AuthService {
         emailAuthService.sendNewPassword(user.getEmail(), newPassword);
     }
 
-    @Transactional
     public void deleteUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
