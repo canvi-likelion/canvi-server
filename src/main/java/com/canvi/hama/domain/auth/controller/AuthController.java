@@ -15,10 +15,12 @@ import com.canvi.hama.domain.auth.swagger.UserRegisterApi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -46,16 +48,17 @@ public class AuthController {
 
     @UserLogoutApi
     @PostMapping("/logout")
-    public ResponseEntity<BaseResponse<Void>> logoutUser(@RequestHeader("Authorization") String accessToken) {
-        authService.logoutUser(accessToken);
+    public ResponseEntity<BaseResponse<Void>> logoutUser(@AuthenticationPrincipal UserDetails userDetails) {
+        authService.logoutUser(userDetails.getUsername());
         return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.SUCCESS));
     }
 
     @RefreshAccessTokenApi
     @PostMapping("/refresh")
     public ResponseEntity<BaseResponse<RefreshTokenResponse>> refreshAccessToken(
-            @RequestHeader("Authorization") String refreshToken) {
-        RefreshTokenResponse refreshTokenResponse = authService.generateNewAccessTokenFromRefreshToken(refreshToken);
+            @AuthenticationPrincipal UserDetails userDetails) {
+        RefreshTokenResponse refreshTokenResponse = authService.generateNewAccessToken(
+                userDetails.getUsername());
         return ResponseEntity.ok(new BaseResponse<>(refreshTokenResponse));
     }
 
@@ -68,6 +71,12 @@ public class AuthController {
     @PostMapping("/reset-password")
     public ResponseEntity<BaseResponse<Void>> resetPassword(@RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
+        return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.SUCCESS));
+    }
+
+    @DeleteMapping("/user")
+    public ResponseEntity<BaseResponse<Void>> withdrawUser(@AuthenticationPrincipal UserDetails userDetails) {
+        authService.deleteUser(userDetails.getUsername());
         return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.SUCCESS));
     }
 }

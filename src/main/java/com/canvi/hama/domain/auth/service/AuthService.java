@@ -97,27 +97,14 @@ public class AuthService {
     }
 
     @Transactional
-    public void logoutUser(String accessToken) {
-        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
-            throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
-        }
-
-        accessToken = accessToken.substring(7);
-        String username = tokenProvider.getUsernameFromJWT(accessToken);
+    public void logoutUser(String username) {
         redisUtil.deleteData(username);
     }
 
     @Transactional
-    public RefreshTokenResponse generateNewAccessTokenFromRefreshToken(String refreshToken) {
-        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
-            refreshToken = refreshToken.substring(7);
-        }
-
-        tokenProvider.validateToken(refreshToken);
-        String username = tokenProvider.getUsernameFromJWT(refreshToken);
-
+    public RefreshTokenResponse generateNewAccessToken(String username) {
         String storedRefreshToken = redisUtil.getData(username);
-        if (storedRefreshToken == null || !storedRefreshToken.equals(refreshToken)) {
+        if (storedRefreshToken == null) {
             throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
         }
 
@@ -142,6 +129,15 @@ public class AuthService {
         userRepository.save(user);
 
         emailAuthService.sendNewPassword(user.getEmail(), newPassword);
+    }
+
+    @Transactional
+    public void deleteUser(String username) {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
+
+        redisUtil.deleteData(username);
+        userRepository.delete(user);
     }
 
     private String generateRandomPassword() {

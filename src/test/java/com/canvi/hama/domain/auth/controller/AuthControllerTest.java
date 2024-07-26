@@ -236,4 +236,48 @@ public class AuthControllerTest {
 
         assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
+
+    @Test
+    public void whenWithdrawWithValidUser_thenReturnsSuccess() {
+        // 먼저 로그인
+        LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
+        Response loginResponse = given()
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .post("/api/auth/login");
+        String accessToken = loginResponse.jsonPath().getString("result.accessToken");
+
+        // 회원탈퇴 요청
+        Response deleteResponse = given()
+                .header("Authorization", "Bearer " + accessToken)
+                .when()
+                .delete("/api/auth/user")
+                .then()
+                .extract().response();
+
+        assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+
+        // 탈퇴 후 로그인 시도 시 실패해야 함
+        Response loginAfterWithdrawResponse = given()
+                .contentType(ContentType.JSON)
+                .body(loginRequest)
+                .when()
+                .post("/api/auth/login")
+                .then()
+                .extract().response();
+
+        assertThat(loginAfterWithdrawResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
+
+    @Test
+    public void whenWithdrawWithoutAuth_thenReturnsError() {
+        // 인증 없이 회원탈퇴 요청
+        Response deleteResponse = given()
+                .when()
+                .delete("/api/auth/user")
+                .then()
+                .extract().response();
+
+        assertThat(deleteResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
+    }
 }
