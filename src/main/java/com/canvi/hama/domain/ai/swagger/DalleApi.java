@@ -1,6 +1,7 @@
 package com.canvi.hama.domain.ai.swagger;
 
 import com.canvi.hama.common.response.BaseResponse;
+import com.canvi.hama.domain.ai.response.DalleResponse;
 import com.canvi.hama.domain.auth.dto.TokenResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -17,7 +18,7 @@ import java.lang.annotation.RetentionPolicy;
 @ApiResponses(value = {
         @ApiResponse(responseCode = "201",
                 content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = @Schema(implementation = BaseResponse.class)))
+                        schema = @Schema(implementation = DalleResponse.class)))
 })
 public @interface DalleApi {
 }
