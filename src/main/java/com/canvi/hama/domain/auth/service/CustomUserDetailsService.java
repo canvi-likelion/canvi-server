@@ -1,6 +1,6 @@
 package com.canvi.hama.domain.auth.service;
 
-import com.canvi.hama.domain.user.dto.User;
+import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;

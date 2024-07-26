@@ -10,7 +10,7 @@ import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
 import com.canvi.hama.domain.auth.dto.ResetPasswordRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.dto.TokenResponse;
-import com.canvi.hama.domain.user.dto.User;
+import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import java.util.Random;
 import lombok.RequiredArgsConstructor;

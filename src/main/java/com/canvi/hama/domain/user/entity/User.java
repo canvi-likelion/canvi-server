@@ -1,4 +1,4 @@
-package com.canvi.hama.domain.user.dto;
+package com.canvi.hama.domain.user.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
 import jakarta.persistence.Column;
