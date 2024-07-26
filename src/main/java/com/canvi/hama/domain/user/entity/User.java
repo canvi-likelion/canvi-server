@@ -23,19 +23,18 @@ public class User extends BaseEntity {
     private Long id;
 
     @NotNull
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(unique = true, length = 10)
     private String username;
 
     @NotNull
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(unique = true, length = 50)
     private String email;
 
     @NotNull
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String password;
 
     @NotNull
-    @Column(nullable = false)
     private int credits = DEFAULT_CREDITS;
 
     @Column
