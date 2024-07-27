@@ -2,7 +2,6 @@ package com.canvi.hama.domain.auth.service;
 
 import com.canvi.hama.common.exception.BaseException;
 import com.canvi.hama.common.response.BaseResponseStatus;
-import com.canvi.hama.common.util.EmailValidator;
 import com.canvi.hama.common.util.RedisUtil;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import java.util.Random;
@@ -19,24 +18,27 @@ public class EmailAuthService {
     @Value("${spring.mail.auth-code-expiration-seconds}")
     private long expirationSeconds;
 
+    @Value("${spring.mail.resend-limit-seconds}")
+    private long resendLimitSeconds;
+
     private final JavaMailSender mailSender;
     private final RedisUtil redisUtil;
     private final UserRepository userRepository;
 
-    private void checkEmailValidation(String email) {
-        if (!EmailValidator.isValidEmail(email)) {
-            throw new BaseException(BaseResponseStatus.INVALID_EMAIL_FORMAT);
-        }
-    }
-
     public void sendAuthCode(String email) {
-        checkEmailValidation(email);
-        if (userRepository.existsByEmail(email)) {
-            throw new BaseException(BaseResponseStatus.EMAIL_ALREADY_EXISTS);
+        String lastSentKey = email + "_last_sent";
+        String lastSentTime = redisUtil.getData(lastSentKey);
+
+        if (lastSentTime != null) {
+            long timeSinceLastSent = System.currentTimeMillis() - Long.parseLong(lastSentTime);
+            if (timeSinceLastSent < resendLimitSeconds * 1000) {
+                throw new BaseException(BaseResponseStatus.EMAIL_RESEND_TOO_SOON);
+            }
         }
 
         String authCode = generateAuthCode();
         redisUtil.setDataExpire(email, authCode, expirationSeconds);
+        redisUtil.setDataExpire(lastSentKey, String.valueOf(System.currentTimeMillis()), resendLimitSeconds);
 
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
@@ -46,7 +48,6 @@ public class EmailAuthService {
     }
 
     public boolean verifyAuthCode(String email, String authCode) {
-        checkEmailValidation(email);
         String storedAuthCode = redisUtil.getData(email);
         if (authCode.equals(storedAuthCode)) {
             redisUtil.setDataExpire(email + "_verified", String.valueOf(true), expirationSeconds);
@@ -56,13 +57,11 @@ public class EmailAuthService {
     }
 
     public boolean isEmailVerified(String email) {
-        checkEmailValidation(email);
         Boolean isVerified = Boolean.valueOf(redisUtil.getData(email + "_verified"));
         return Boolean.TRUE.equals(isVerified);
     }
 
     public void sendNewPassword(String email, String newPassword) {
-        checkEmailValidation(email);
         SimpleMailMessage message = new SimpleMailMessage();
         message.setTo(email);
         message.setSubject("[hama] 새 비밀번호 안내");

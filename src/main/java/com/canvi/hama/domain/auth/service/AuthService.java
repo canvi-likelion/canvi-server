@@ -110,7 +110,7 @@ public class AuthService {
 
     public void resetPassword(ResetPasswordRequest request) {
         User user = userRepository.findByUsernameAndEmail(request.username(), request.email())
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_FIND_USERNAME_REQUEST));
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
         String newPassword = generateRandomPassword();
         user.updatePassword(passwordEncoder.encode(newPassword));

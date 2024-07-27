@@ -69,6 +69,21 @@ public class AuthControllerTest {
     }
 
     @Test
+    public void whenInValidSignupForm_thenReturnsBadRequest() {
+        SignupRequest signupRequest = new SignupRequest("newuser", "new@example.com", "123");
+
+        Response response = given()
+                .contentType(ContentType.JSON)
+                .body(signupRequest)
+                .when()
+                .post("/api/auth/signup")
+                .then()
+                .extract().response();
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+    }
+
+    @Test
     public void whenValidLogin_thenReturnsToken() {
         LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
 
@@ -209,7 +224,7 @@ public class AuthControllerTest {
                 .then()
                 .extract().response();
 
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST.value());
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
     @Test
