@@ -5,10 +5,10 @@ import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.common.security.JwtTokenProvider;
 import com.canvi.hama.common.util.RedisUtil;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
+import com.canvi.hama.domain.auth.dto.LoginResponse;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
 import com.canvi.hama.domain.auth.dto.ResetPasswordRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
-import com.canvi.hama.domain.auth.dto.TokenResponse;
 import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import java.util.Random;
@@ -65,12 +65,15 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResponse authenticateUser(LoginRequest loginRequest) {
+    public LoginResponse authenticateUser(LoginRequest loginRequest) {
+        String username = loginRequest.username();
+        String password = loginRequest.password();
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginRequest.username(),
-                            loginRequest.password()
+                            username,
+                            password
                     )
             );
 
@@ -82,7 +85,7 @@ public class AuthService {
             redisUtil.setDataExpire(loginRequest.username(), refreshToken,
                     tokenProvider.getRefreshTokenExpirationInSeconds());
 
-            return new TokenResponse(accessToken, refreshToken);
+            return new LoginResponse(username, accessToken, refreshToken);
         } catch (BadCredentialsException e) {
             throw new BaseException(BaseResponseStatus.INVALID_CREDENTIALS);
         }

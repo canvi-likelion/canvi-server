@@ -96,6 +96,7 @@ public class AuthControllerTest {
                 .extract().response();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK.value());
+        assertThat(response.jsonPath().getString("result.username")).isEqualTo(testUsername);
         assertThat(response.jsonPath().getString("result.accessToken")).isNotBlank();
         assertThat(response.jsonPath().getString("result.refreshToken")).isNotBlank();
     }

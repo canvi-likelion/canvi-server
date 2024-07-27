@@ -3,10 +3,10 @@ package com.canvi.hama.domain.auth.controller;
 import com.canvi.hama.common.response.BaseResponse;
 import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
+import com.canvi.hama.domain.auth.dto.LoginResponse;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
 import com.canvi.hama.domain.auth.dto.ResetPasswordRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
-import com.canvi.hama.domain.auth.dto.TokenResponse;
 import com.canvi.hama.domain.auth.service.AuthService;
 import com.canvi.hama.domain.auth.swagger.RefreshAccessTokenApi;
 import com.canvi.hama.domain.auth.swagger.UserAuthenticateApi;
@@ -44,9 +44,9 @@ public class AuthController {
 
     @UserAuthenticateApi
     @PostMapping("/login")
-    public ResponseEntity<BaseResponse<TokenResponse>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        TokenResponse tokenResponse = authService.authenticateUser(loginRequest);
-        return ResponseEntity.ok(new BaseResponse<>(tokenResponse));
+    public ResponseEntity<BaseResponse<LoginResponse>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
+        LoginResponse loginResponse = authService.authenticateUser(loginRequest);
+        return ResponseEntity.ok(new BaseResponse<>(loginResponse));
     }
 
     @UserLogoutApi
