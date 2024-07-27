@@ -9,7 +9,7 @@ import com.canvi.hama.domain.diary.repository.DiaryRepository;
 import com.canvi.hama.domain.diary.repository.ImageRepository;
 import com.canvi.hama.domain.diary.request.DiaryRequest;
 import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
-import com.canvi.hama.domain.user.domain.User;
+import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;

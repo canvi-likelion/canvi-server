@@ -3,12 +3,15 @@ package com.canvi.hama.domain.auth.service;
 import com.canvi.hama.common.exception.BaseException;
 import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.common.security.JwtTokenProvider;
+import com.canvi.hama.common.util.RedisUtil;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
+import com.canvi.hama.domain.auth.dto.LoginResponse;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
+import com.canvi.hama.domain.auth.dto.ResetPasswordRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
-import com.canvi.hama.domain.auth.dto.TokenResponse;
-import com.canvi.hama.domain.user.domain.User;
+import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
+import java.util.Random;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -26,6 +29,13 @@ public class AuthService {
     private final JwtTokenProvider tokenProvider;
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailAuthService emailAuthService;
+    private final RedisUtil redisUtil;
+
+    @Transactional(readOnly = true)
+    public boolean isEmailAvailable(String email) {
+        return !userRepository.existsByEmail(email);
+    }
 
     @Transactional
     public void registerUser(SignupRequest signUpRequest) {
@@ -33,8 +43,12 @@ public class AuthService {
             throw new BaseException(BaseResponseStatus.USERNAME_ALREADY_EXISTS);
         }
 
-        if (userRepository.existsByEmail(signUpRequest.email())) {
+        if (!isEmailAvailable(signUpRequest.email())) {
             throw new BaseException(BaseResponseStatus.EMAIL_ALREADY_EXISTS);
+        }
+
+        if (!emailAuthService.isEmailVerified(signUpRequest.email())) {
+            throw new BaseException(BaseResponseStatus.EMAIL_NOT_VERIFIED);
         }
 
         User user = User.create(
@@ -46,12 +60,15 @@ public class AuthService {
     }
 
     @Transactional
-    public TokenResponse authenticateUser(LoginRequest loginRequest) {
+    public LoginResponse authenticateUser(LoginRequest loginRequest) {
+        String username = loginRequest.username();
+        String password = loginRequest.password();
+
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            loginRequest.username(),
-                            loginRequest.password()
+                            username,
+                            password
                     )
             );
 
@@ -60,50 +77,61 @@ public class AuthService {
             String accessToken = tokenProvider.generateAccessToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
-            userRepository.findByUsername(loginRequest.username())
-                    .ifPresent(user -> {
-                        user.updateRefreshToken(refreshToken);
-                        userRepository.save(user);
-                    });
+            redisUtil.setDataExpire(loginRequest.username(), refreshToken,
+                    tokenProvider.getRefreshTokenExpirationInSeconds());
 
-            return new TokenResponse(accessToken, refreshToken);
+            return new LoginResponse(username, accessToken, refreshToken);
         } catch (BadCredentialsException e) {
             throw new BaseException(BaseResponseStatus.INVALID_CREDENTIALS);
         }
     }
 
-    @Transactional
-    public void logoutUser(String accessToken) {
-        if (accessToken == null || !accessToken.startsWith("Bearer ")) {
+    public void logoutUser(String username) {
+        redisUtil.deleteData(username);
+    }
+
+    public RefreshTokenResponse generateNewAccessToken(String username) {
+        String storedRefreshToken = redisUtil.getData(username);
+        if (storedRefreshToken == null) {
             throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
         }
 
-        accessToken = accessToken.substring(7);
+        String newAccessToken = tokenProvider.generateAccessTokenFromUsername(username);
+        return new RefreshTokenResponse(newAccessToken);
+    }
 
-        String username = tokenProvider.getUsernameFromJWT(accessToken);
+    public String findUsernameByEmail(String email) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
+        return user.getUsername();
+    }
+
+    public void resetPassword(ResetPasswordRequest request) {
+        User user = userRepository.findByUsernameAndEmail(request.username(), request.email())
+                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
+
+        String newPassword = generateRandomPassword();
+        user.updatePassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        emailAuthService.sendNewPassword(user.getEmail(), newPassword);
+    }
+
+    public void deleteUser(String username) {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
-        user.clearRefreshToken();
-        userRepository.save(user);
+        redisUtil.deleteData(username);
+        userRepository.delete(user);
     }
 
-    @Transactional
-    public RefreshTokenResponse generateNewAccessTokenFromRefreshToken(String refreshToken) {
-        if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
-            refreshToken = refreshToken.substring(7);
+    private String generateRandomPassword() {
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()";
+        StringBuilder sb = new StringBuilder();
+        Random random = new Random();
+        for (int i = 0; i < 12; i++) {
+            sb.append(chars.charAt(random.nextInt(chars.length())));
         }
-
-        tokenProvider.validateToken(refreshToken);
-        String username = tokenProvider.getUsernameFromJWT(refreshToken);
-
-        String finalRefreshToken = refreshToken;
-        return userRepository.findByUsername(username)
-                .filter(user -> finalRefreshToken.equals(user.getRefreshToken()))
-                .map(user -> {
-                    String newAccessToken = tokenProvider.generateAccessTokenFromUsername(username);
-                    return new RefreshTokenResponse(newAccessToken);
-                })
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.INVALID_TOKEN));
+        return sb.toString();
     }
 }
