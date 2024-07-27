@@ -1,5 +1,6 @@
 package com.canvi.hama.domain.diary.service;
 
+import com.canvi.hama.domain.diary.dto.DiarySummaryResponse;
 import com.canvi.hama.domain.diary.entity.Comment;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.entity.Image;
@@ -11,6 +12,7 @@ import com.canvi.hama.domain.diary.request.DiaryRequest;
 import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
 import com.canvi.hama.domain.user.domain.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -18,9 +20,12 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 
 @Service
+@Slf4j
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
@@ -38,6 +43,10 @@ public class DiaryService {
 
     public void saveDiary(DiaryRequest diaryRequest) {
         User user = getUserByUserId(diaryRequest.getUserId());
+        Optional<Diary> diaryOptional = diaryRepository.findByUserIdAndDiaryDate(diaryRequest.getUserId(), diaryRequest.getDiaryDate());
+        if (diaryOptional.isPresent()) {
+            throw new DiaryException(DiaryResponseStatus.DIARY_ALREADY_EXISTS);
+        }
 
         Diary diary = Diary.builder()
                 .user(user)
@@ -50,6 +59,7 @@ public class DiaryService {
     }
 
     public List<Diary> getDiariesByUserId(Long userId) {
+        User user = getUserByUserId(userId);
         return diaryRepository.findByUserId(userId);
     }
 
@@ -102,5 +112,13 @@ public class DiaryService {
         } catch (Exception e) {
             throw new DiaryException(DiaryResponseStatus.INTERNAL_SERVER_ERROR);
         }
+    }
+
+    public DiarySummaryResponse getDiaryByDate(Long userId, LocalDate date) {
+        User user = getUserByUserId(userId);
+        Diary diary = diaryRepository.findByUserIdAndDiaryDate(user.getId(), date)
+                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.DIARY_NOT_FOUND));
+
+        return new DiarySummaryResponse(diary);
     }
 }

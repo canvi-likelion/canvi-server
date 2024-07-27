@@ -1,5 +1,8 @@
 package com.canvi.hama.domain.diary.controller;
 
+import com.canvi.hama.common.exception.BaseException;
+import com.canvi.hama.common.response.BaseResponse;
+import com.canvi.hama.domain.diary.dto.DiarySummaryResponse;
 import com.canvi.hama.domain.diary.entity.Comment;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.entity.Image;
@@ -14,6 +17,7 @@ import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
 import com.canvi.hama.domain.diary.service.DiaryService;
 import com.canvi.hama.domain.diary.swagger.comment.GetCommentApi;
 import com.canvi.hama.domain.diary.swagger.comment.SaveCommentApi;
+import com.canvi.hama.domain.diary.swagger.diary.DiarySummeryGetApi;
 import com.canvi.hama.domain.diary.swagger.diary.GetDiaryApi;
 import com.canvi.hama.domain.diary.swagger.diary.SaveDiaryApi;
 import com.canvi.hama.domain.diary.swagger.image.GetImageApi;
@@ -29,6 +33,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.time.LocalDate;
 import java.util.List;
 
 @Tag(name = "Diary")
@@ -111,4 +116,13 @@ public class DiaryController {
         }
     }
 
+    @DiarySummeryGetApi
+    @GetMapping("/calendar/{userId}/{date}")
+    public BaseResponse<DiarySummaryResponse> getDiarySummary(@PathVariable Long userId, @PathVariable LocalDate date) {
+        try {
+            return new BaseResponse<>(diaryService.getDiaryByDate(userId, date));
+        } catch (BaseException e) {
+            return new BaseResponse<>(e.getStatus());
+        }
+    }
 }
