@@ -3,7 +3,6 @@ package com.canvi.hama.domain.auth.service;
 import com.canvi.hama.common.exception.BaseException;
 import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.common.security.JwtTokenProvider;
-import com.canvi.hama.common.util.EmailValidator;
 import com.canvi.hama.common.util.RedisUtil;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
@@ -33,12 +32,6 @@ public class AuthService {
     private final EmailAuthService emailAuthService;
     private final RedisUtil redisUtil;
 
-    private void checkEmailValidation(String email) {
-        if (!EmailValidator.isValidEmail(email)) {
-            throw new BaseException(BaseResponseStatus.INVALID_EMAIL_FORMAT);
-        }
-    }
-
     @Transactional(readOnly = true)
     public boolean isUsernameAvailable(String username) {
         return userRepository.countByUsername(username) == 0;
@@ -51,8 +44,6 @@ public class AuthService {
 
     @Transactional
     public void registerUser(SignupRequest signUpRequest) {
-        checkEmailValidation(signUpRequest.email());
-
         if (!isUsernameAvailable(signUpRequest.username())) {
             throw new BaseException(BaseResponseStatus.USERNAME_ALREADY_EXISTS);
         }
@@ -88,7 +79,8 @@ public class AuthService {
             String accessToken = tokenProvider.generateAccessToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
-            redisUtil.setDataExpire(loginRequest.username(), refreshToken, tokenProvider.getRefreshTokenExpirationInSeconds());
+            redisUtil.setDataExpire(loginRequest.username(), refreshToken,
+                    tokenProvider.getRefreshTokenExpirationInSeconds());
 
             return new TokenResponse(accessToken, refreshToken);
         } catch (BadCredentialsException e) {

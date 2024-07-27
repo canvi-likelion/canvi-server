@@ -13,6 +13,9 @@ import com.canvi.hama.domain.auth.swagger.UserAuthenticateApi;
 import com.canvi.hama.domain.auth.swagger.UserLogoutApi;
 import com.canvi.hama.domain.auth.swagger.UserRegisterApi;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -34,14 +37,14 @@ public class AuthController {
 
     @UserRegisterApi
     @PostMapping("/signup")
-    public ResponseEntity<BaseResponse<Void>> registerUser(@RequestBody SignupRequest signUpRequest) {
+    public ResponseEntity<BaseResponse<Void>> registerUser(@Valid @RequestBody SignupRequest signUpRequest) {
         authService.registerUser(signUpRequest);
         return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.SUCCESS));
     }
 
     @UserAuthenticateApi
     @PostMapping("/login")
-    public ResponseEntity<BaseResponse<TokenResponse>> authenticateUser(@RequestBody LoginRequest loginRequest) {
+    public ResponseEntity<BaseResponse<TokenResponse>> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         TokenResponse tokenResponse = authService.authenticateUser(loginRequest);
         return ResponseEntity.ok(new BaseResponse<>(tokenResponse));
     }
@@ -63,13 +66,14 @@ public class AuthController {
     }
 
     @GetMapping("/find-username")
-    public ResponseEntity<BaseResponse<String>> findUsernameByEmail(@RequestParam String email) {
+    public ResponseEntity<BaseResponse<String>> findUsernameByEmail(
+            @Valid @RequestParam @NotBlank(message = "이메일이 비었습니다.") @Email(message = "이메일 형식이 유효하지 않습니다.") String email) {
         String username = authService.findUsernameByEmail(email);
         return ResponseEntity.ok(new BaseResponse<>(username));
     }
 
     @PostMapping("/reset-password")
-    public ResponseEntity<BaseResponse<Void>> resetPassword(@RequestBody ResetPasswordRequest request) {
+    public ResponseEntity<BaseResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);
         return ResponseEntity.ok(new BaseResponse<>(BaseResponseStatus.SUCCESS));
     }
