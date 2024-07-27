@@ -33,18 +33,13 @@ public class AuthService {
     private final RedisUtil redisUtil;
 
     @Transactional(readOnly = true)
-    public boolean isUsernameAvailable(String username) {
-        return userRepository.countByUsername(username) == 0;
-    }
-
-    @Transactional(readOnly = true)
     public boolean isEmailAvailable(String email) {
-        return userRepository.countByEmail(email) == 0;
+        return !userRepository.existsByEmail(email);
     }
 
     @Transactional
     public void registerUser(SignupRequest signUpRequest) {
-        if (!isUsernameAvailable(signUpRequest.username())) {
+        if (userRepository.existsByUsername(signUpRequest.username())) {
             throw new BaseException(BaseResponseStatus.USERNAME_ALREADY_EXISTS);
         }
 
