@@ -1,4 +1,4 @@
-package com.canvi.hama.domain.user.domain;
+package com.canvi.hama.domain.user.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -23,19 +23,18 @@ public class User extends BaseEntity {
     private Long id;
 
     @NotNull
-    @Column(nullable = false, unique = true, length = 10)
+    @Column(unique = true, length = 10)
     private String username;
 
     @NotNull
-    @Column(nullable = false, unique = true, length = 50)
+    @Column(unique = true, length = 50)
     private String email;
 
     @NotNull
-    @Column(nullable = false, length = 100)
+    @Column(length = 100)
     private String password;
 
     @NotNull
-    @Column(nullable = false)
     private int credits = DEFAULT_CREDITS;
 
     @Column
@@ -46,7 +45,6 @@ public class User extends BaseEntity {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.credits = DEFAULT_CREDITS;
     }
 
     public static User create(String username, String email, String password) {
@@ -57,15 +55,9 @@ public class User extends BaseEntity {
                 .build();
     }
 
+    public void updatePassword(String password) { this.password = password; }
+
     public void updateCredits(int credits) {
         this.credits = credits;
-    }
-
-    public void updateRefreshToken(String refreshToken) {
-        this.refreshToken = refreshToken;
-    }
-
-    public void clearRefreshToken() {
-        this.refreshToken = null;
     }
 }
