@@ -95,4 +95,8 @@ public class JwtTokenProvider {
         UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
+
+    public long getRefreshTokenExpirationInSeconds() {
+        return refreshTokenExpirationInMs / 1000;
+    }
 }
