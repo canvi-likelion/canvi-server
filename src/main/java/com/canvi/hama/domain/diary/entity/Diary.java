@@ -42,4 +42,7 @@ public class Diary extends BaseEntity {
 
     @Column(name = "diary_date", nullable = false)
     private LocalDate diaryDate;
+
+    @OneToOne(mappedBy = "diary", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
+    private Image image;
 }
