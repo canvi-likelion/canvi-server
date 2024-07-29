@@ -8,8 +8,8 @@ import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.exception.DiaryException;
-import com.canvi.hama.domain.diary.request.DiaryRequest;
-import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
+import com.canvi.hama.domain.diary.dto.request.DiaryRequest;
+import com.canvi.hama.domain.diary.enums.DiaryResponseStatus;
 import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import io.restassured.RestAssured;
@@ -87,14 +87,14 @@ public class DiaryControllerTest {
     // 일기 저장 확인
     @Test
     public void saveDiary() {
-        DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
+        DiaryRequest diaryRequest = new DiaryRequest("Test Title", "Test Content", LocalDate.now());
 
         given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .body(diaryRequest)
                 .when()
-                .post("/diary/save")
+                .post("/diaries")
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
     }
@@ -103,14 +103,14 @@ public class DiaryControllerTest {
     @Test
     public void getDiariesByUserId() {
         // 일기 저장
-        DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
+        DiaryRequest diaryRequest = new DiaryRequest("Test Title", "Test Content", LocalDate.now());
 
         given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .body(diaryRequest)
                 .when()
-                .post("/diary/save")
+                .post("/diaries" )
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
@@ -119,7 +119,7 @@ public class DiaryControllerTest {
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/diary/user/" + userId)
+                .get("/diaries")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract().response();

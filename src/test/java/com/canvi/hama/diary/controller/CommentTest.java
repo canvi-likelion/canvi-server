@@ -9,9 +9,9 @@ import com.canvi.hama.domain.auth.dto.SignupRequest;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.exception.DiaryException;
-import com.canvi.hama.domain.diary.request.CommentSaveRequest;
-import com.canvi.hama.domain.diary.request.DiaryRequest;
-import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
+import com.canvi.hama.domain.diary.dto.request.CommentSaveRequest;
+import com.canvi.hama.domain.diary.dto.request.DiaryRequest;
+import com.canvi.hama.domain.diary.enums.DiaryResponseStatus;
 import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import io.restassured.RestAssured;
@@ -87,14 +87,14 @@ public class CommentTest {
         userId = user.getId();
 
         // 일기 저장
-        DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
+        DiaryRequest diaryRequest = new DiaryRequest("Test Title", "Test Content", LocalDate.now());
 
         given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .body(diaryRequest)
                 .when()
-                .post("/diary/save")
+                .post("/diaries")
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
@@ -103,7 +103,7 @@ public class CommentTest {
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/diary/user/" + userId)
+                .get("/diaries")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract().response();
@@ -115,28 +115,28 @@ public class CommentTest {
 
     @Test
     public void saveComment() {
-        CommentSaveRequest commentSaveRequest = new CommentSaveRequest(diaryId, userId, "Test Comment");
+        CommentSaveRequest commentSaveRequest = new CommentSaveRequest("Test Comment");
 
         given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .body(commentSaveRequest)
                 .when()
-                .post("/diary/comment/save")
+                .post("/diaries/" + diaryId + "/comments")
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
     }
 
     @Test
     public void getCommentByDiaryId() {
-        CommentSaveRequest commentSaveRequest = new CommentSaveRequest(diaryId, userId, "Test Comment");
+        CommentSaveRequest commentSaveRequest = new CommentSaveRequest("Test Comment");
 
         given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .body(commentSaveRequest)
                 .when()
-                .post("/diary/comment/save")
+                .post("/diaries/" + diaryId + "/comments")
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
@@ -145,7 +145,7 @@ public class CommentTest {
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/diary/comment/" + diaryId)
+                .get("/diaries/" + diaryId + "/comments")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract().response();

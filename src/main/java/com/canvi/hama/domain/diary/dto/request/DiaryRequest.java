@@ -1,4 +1,4 @@
-package com.canvi.hama.domain.diary.request;
+package com.canvi.hama.domain.diary.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -12,9 +12,7 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @AllArgsConstructor
 public class DiaryRequest {
-    private Long userId;
     private String title;
     private String content;
     private LocalDate diaryDate;
-
 }

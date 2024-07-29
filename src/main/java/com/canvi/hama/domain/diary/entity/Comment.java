@@ -1,7 +1,6 @@
 package com.canvi.hama.domain.diary.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
-import com.canvi.hama.domain.user.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -30,11 +29,7 @@ public class Comment extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_id", referencedColumnName = "id", nullable = false)
-    private Diary diaryId;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
-    private User userId;
+    private Diary diary;
 
     @Column(name = "comment", nullable = false, columnDefinition = "TEXT")
     private String comment;

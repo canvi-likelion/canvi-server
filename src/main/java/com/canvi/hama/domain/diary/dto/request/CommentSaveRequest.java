@@ -1,4 +1,4 @@
-package com.canvi.hama.domain.diary.request;
+package com.canvi.hama.domain.diary.dto.request;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -9,7 +9,6 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class ImageSaveRequest {
-    private Long diaryId;
-    private String imageUrl;
+public class CommentSaveRequest {
+    private String comment;
 }
