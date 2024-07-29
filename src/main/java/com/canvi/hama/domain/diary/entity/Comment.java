@@ -11,7 +11,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,9 +19,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "comment")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Comment extends BaseEntity {
 
     @Id
@@ -36,4 +34,17 @@ public class Comment extends BaseEntity {
     @Column(name = "comment", columnDefinition = "TEXT")
     @NotNull
     private String comment;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private Comment(Diary diary, String comment) {
+        this.diary = diary;
+        this.comment = comment;
+    }
+
+    public static Comment create(Diary diary, String comment) {
+        return Comment.builder()
+                .diary(diary)
+                .comment(comment)
+                .build();
+    }
 }

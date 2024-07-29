@@ -40,14 +40,7 @@ public class DiaryService {
 
     public void saveDiary(String username, DiaryRequest diaryRequest) {
         User user = getUserByUsername(username);
-
-        Diary diary = Diary.builder()
-                .user(user)
-                .title(diaryRequest.title())
-                .content(diaryRequest.content())
-                .diaryDate(diaryRequest.diaryDate())
-                .build();
-
+        Diary diary = Diary.create(user, diaryRequest.title(), diaryRequest.content(), diaryRequest.diaryDate());
         diaryRepository.save(diary);
     }
 
@@ -68,9 +61,7 @@ public class DiaryService {
     public void saveComment(Long diaryId, String comment) {
         Diary diary = diaryRepository.findById(diaryId)
                 .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
-
-        Comment saveComment = Comment.builder().diary(diary).comment(comment).build();
-
+        Comment saveComment = Comment.create(diary, comment);
         commentRepository.save(saveComment);
     }
 
@@ -130,11 +121,7 @@ public class DiaryService {
     }
 
     private void saveImageMetadata(Diary diary, Path imagePath) {
-        Image image = Image.builder()
-                .diary(diary)
-                .url(imagePath.toAbsolutePath().toString())
-                .build();
-
+        Image image = Image.create(diary, imagePath.toAbsolutePath().toString());
         imageRepository.save(image);
     }
 }

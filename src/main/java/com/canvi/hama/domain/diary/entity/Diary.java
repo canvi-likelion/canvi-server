@@ -13,7 +13,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,9 +21,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "diary")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Diary extends BaseEntity {
 
     @Id
@@ -47,4 +45,21 @@ public class Diary extends BaseEntity {
     @Column(name = "diary_date")
     @NotNull
     private LocalDate diaryDate;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    private Diary(User user, String title, String content, LocalDate diaryDate) {
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.diaryDate = diaryDate;
+    }
+
+    public static Diary create(User user, String title, String content, LocalDate diaryDate) {
+        return Diary.builder()
+                .user(user)
+                .title(title)
+                .content(content)
+                .diaryDate(diaryDate)
+                .build();
+    }
 }

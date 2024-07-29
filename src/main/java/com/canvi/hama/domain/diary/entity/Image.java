@@ -8,9 +8,7 @@ import lombok.*;
 @Entity
 @Table(name = "image")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Image extends BaseEntity {
 
     @Id
@@ -25,4 +23,17 @@ public class Image extends BaseEntity {
     @Column(name = "url")
     @NotNull
     private String url;
+
+    @Builder(access = AccessLevel.PRIVATE)
+    public Image(Diary diary, String url) {
+        this.diary = diary;
+        this.url = url;
+    }
+
+    public static Image create(Diary diary, String url) {
+        return Image.builder()
+                .diary(diary)
+                .url(url)
+                .build();
+    }
 }
