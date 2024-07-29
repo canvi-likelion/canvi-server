@@ -1,8 +1,6 @@
 package com.canvi.hama.domain.ai.swagger;
 
-import com.canvi.hama.common.response.BaseResponse;
-import com.canvi.hama.domain.ai.response.DalleResponse;
-import com.canvi.hama.domain.auth.dto.TokenResponse;
+import com.canvi.hama.domain.ai.dto.response.DalleResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

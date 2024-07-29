@@ -10,6 +10,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -28,9 +29,11 @@ public class Comment extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diary_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "diary_id")
+    @NotNull
     private Diary diary;
 
-    @Column(name = "comment", nullable = false, columnDefinition = "TEXT")
+    @Column(name = "comment", columnDefinition = "TEXT")
+    @NotNull
     private String comment;
 }

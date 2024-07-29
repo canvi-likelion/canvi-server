@@ -2,6 +2,7 @@ package com.canvi.hama.domain.diary.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 
 @Entity
@@ -17,9 +18,11 @@ public class Image extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diary_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "diary_id")
+    @NotNull
     private Diary diary;
 
-    @Column(name = "url", nullable = false)
+    @Column(name = "url")
+    @NotNull
     private String url;
 }

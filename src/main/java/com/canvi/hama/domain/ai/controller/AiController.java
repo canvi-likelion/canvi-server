@@ -1,9 +1,9 @@
 package com.canvi.hama.domain.ai.controller;
 
-import com.canvi.hama.domain.ai.request.AiRequest;
-import com.canvi.hama.domain.ai.request.DalleRequest;
-import com.canvi.hama.domain.ai.response.DalleResponse;
-import com.canvi.hama.domain.ai.response.GptResponse;
+import com.canvi.hama.domain.ai.dto.request.AiRequest;
+import com.canvi.hama.domain.ai.dto.request.DalleRequest;
+import com.canvi.hama.domain.ai.dto.response.DalleResponse;
+import com.canvi.hama.domain.ai.dto.response.GptResponse;
 import com.canvi.hama.domain.ai.service.GptService;
 import com.canvi.hama.domain.ai.swagger.DalleApi;
 import com.canvi.hama.domain.ai.swagger.GptApi;

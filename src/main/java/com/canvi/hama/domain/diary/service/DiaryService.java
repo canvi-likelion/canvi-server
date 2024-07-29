@@ -36,9 +36,9 @@ public class DiaryService {
 
         Diary diary = Diary.builder()
                 .user(user)
-                .title(diaryRequest.getTitle())
-                .content(diaryRequest.getContent())
-                .diaryDate(diaryRequest.getDiaryDate())
+                .title(diaryRequest.title())
+                .content(diaryRequest.content())
+                .diaryDate(diaryRequest.diaryDate())
                 .build();
 
         diaryRepository.save(diary);

@@ -1,6 +1,6 @@
 package com.canvi.hama.domain.diary.swagger;
 
-import com.canvi.hama.domain.ai.response.GptResponse;
+import com.canvi.hama.domain.ai.dto.response.GptResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

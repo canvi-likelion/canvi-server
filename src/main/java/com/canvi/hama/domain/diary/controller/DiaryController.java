@@ -59,7 +59,7 @@ public class DiaryController {
     public ResponseEntity<DiaryResponseStatus> addComment(@AuthenticationPrincipal UserDetails userDetails,
                                                           @PathVariable @Valid @NotNull(message = "다이어리 아이디가 비어있습니다.") Long diaryId,
                                                           @RequestBody @Valid CommentSaveRequest commentSaveRequest) {
-        diaryService.saveComment(diaryId, commentSaveRequest.getComment());
+        diaryService.saveComment(diaryId, commentSaveRequest.comment());
         return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
     }
 
@@ -77,7 +77,7 @@ public class DiaryController {
             @PathVariable @Valid @NotNull(message = "다이어리 아이디가 비어있습니다.") Long diaryId,
             @RequestBody @Valid ImageSaveRequest imageSaveRequest) {
 
-        diaryService.saveImageFromUrl(diaryId, imageSaveRequest.getImageUrl());
+        diaryService.saveImageFromUrl(diaryId, imageSaveRequest.imageUrl());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
     }

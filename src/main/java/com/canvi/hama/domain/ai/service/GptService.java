@@ -1,9 +1,9 @@
 package com.canvi.hama.domain.ai.service;
 
 import com.canvi.hama.domain.ai.exception.AiException;
-import com.canvi.hama.domain.ai.request.AiRequest;
-import com.canvi.hama.domain.ai.request.DalleRequest;
-import com.canvi.hama.domain.ai.response.AiResponseStatus;
+import com.canvi.hama.domain.ai.dto.request.AiRequest;
+import com.canvi.hama.domain.ai.dto.request.DalleRequest;
+import com.canvi.hama.domain.ai.enums.AiResponseStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -34,9 +34,9 @@ public class GptService {
     private final PapagoService papagoService;
 
     public String getChatGptResponse(AiRequest request) {
-        validationPrompt(request.getPrompt());
+        validationPrompt(request.prompt());
 
-        String translatedPrompt = papagoService.getPapago(request.getPrompt());
+        String translatedPrompt = papagoService.getPapago(request.prompt());
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             HttpPost httpPost = new HttpPost(OPENAI_API_URL);
@@ -49,7 +49,7 @@ public class GptService {
             List<Map<String, String>> messages = List.of(
                     Map.of("role", "system", "content", "You are assistant who helps me write my diary." +
                             "Please analyze the user's diary in detail and give me feedback." +
-                            "User name is " + request.getUserName() +
+                            "User name is " + request.username() +
                             "Tell me in a warm way." +
                             "Tell me in long sentences, not in a list" +
                             "Please just write it in text." +
@@ -78,9 +78,9 @@ public class GptService {
     }
 
     public Map<String, Object> getDallEResponse(DalleRequest request) {
-        validationPrompt(request.getPrompt());
+        validationPrompt(request.prompt());
 
-        String translatedPrompt = papagoService.getPapago(request.getPrompt());
+        String translatedPrompt = papagoService.getPapago(request.prompt());
 
         try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
 
@@ -101,10 +101,10 @@ public class GptService {
 //                    "The contents of the diary are as follows.\n" +
 //                    translatedPrompt);
             requestBody.put("prompt", "I will tell you the contents of my diary, so please analyze them and draw them with emotional and cute pictures. Choose one of the contents of the diary and draw it. My information is as follows. " +
-                    "My Gender is " + request.getGender() +
-                    "My Age is " + request.getAge() +
-                    "My Hair style is " + request.getHairStyle() +
-                    "My clothes is" + request.getClothes() +
+                    "My Gender is " + request.gender() +
+                    "My Age is " + request.age() +
+                    "My Hair style is " + request.hairStyle() +
+                    "My clothes is" + request.clothes() +
                     "The contents of my diary are as follows.." +
                     translatedPrompt);
             requestBody.put("n", 1);

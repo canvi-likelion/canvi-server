@@ -1,7 +1,7 @@
 package com.canvi.hama.domain.ai.service;
 
 import com.canvi.hama.domain.ai.exception.AiException;
-import com.canvi.hama.domain.ai.response.AiResponseStatus;
+import com.canvi.hama.domain.ai.enums.AiResponseStatus;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.springframework.beans.factory.annotation.Value;
