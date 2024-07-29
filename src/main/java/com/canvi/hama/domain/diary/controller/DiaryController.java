@@ -19,35 +19,32 @@ import com.canvi.hama.domain.diary.swagger.diary.SaveDiaryApi;
 import com.canvi.hama.domain.diary.swagger.image.GetImageApi;
 import com.canvi.hama.domain.diary.swagger.image.SaveImageApi;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "Diary")
 @RestController
 @RequestMapping("/diary")
+@RequiredArgsConstructor
 public class DiaryController {
 
     private final DiaryService diaryService;
     private final ImageRepository imageRepository;
     private final DiaryRepository diaryRepository;
     private final CommentRepository commentRepository;
-
-    @Autowired
-    public DiaryController(DiaryService diaryService, ImageRepository imageRepository, DiaryRepository diaryRepository, CommentRepository commentRepository) {
-        this.diaryService = diaryService;
-        this.imageRepository = imageRepository;
-        this.diaryRepository = diaryRepository;
-        this.commentRepository = commentRepository;
-    }
 
     @SaveDiaryApi
     @PostMapping("/save")

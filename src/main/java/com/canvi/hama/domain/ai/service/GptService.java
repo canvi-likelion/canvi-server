@@ -1,28 +1,27 @@
 package com.canvi.hama.domain.ai.service;
 
 import com.canvi.hama.domain.ai.exception.AiException;
-import com.canvi.hama.domain.ai.request.DalleRequest;
 import com.canvi.hama.domain.ai.request.AiRequest;
+import com.canvi.hama.domain.ai.request.DalleRequest;
 import com.canvi.hama.domain.ai.response.AiResponseStatus;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import lombok.RequiredArgsConstructor;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 @Service
+@RequiredArgsConstructor
 public class GptService {
 
     @Value("${openai.api.key}")
@@ -32,13 +31,7 @@ public class GptService {
     private static final String DALLE_API_URL = "https://api.openai.com/v1/images/generations";
 
     private final ObjectMapper objectMapper = new ObjectMapper();
-
     private final PapagoService papagoService;
-
-    @Autowired
-    public GptService(PapagoService papagoService) {
-        this.papagoService = papagoService;
-    }
 
     public String getChatGptResponse(AiRequest request) {
         validationPrompt(request.getPrompt());

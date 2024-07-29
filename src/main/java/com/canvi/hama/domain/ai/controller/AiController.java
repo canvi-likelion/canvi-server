@@ -1,33 +1,30 @@
 package com.canvi.hama.domain.ai.controller;
 
-import com.canvi.hama.domain.ai.request.DalleRequest;
 import com.canvi.hama.domain.ai.request.AiRequest;
+import com.canvi.hama.domain.ai.request.DalleRequest;
 import com.canvi.hama.domain.ai.response.DalleResponse;
 import com.canvi.hama.domain.ai.response.GptResponse;
 import com.canvi.hama.domain.ai.service.GptService;
 import com.canvi.hama.domain.ai.swagger.DalleApi;
 import com.canvi.hama.domain.ai.swagger.GptApi;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.Map;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 @Tag(name = "OpenAI")
 @RestController
 @RequestMapping("/api")
+@RequiredArgsConstructor
 public class AiController {
 
     private final GptService aiService;
-
-    @Autowired
-    public AiController(GptService aiService) {
-        this.aiService = aiService;
-    }
-
 
     @GptApi
     @PostMapping("/gpt")

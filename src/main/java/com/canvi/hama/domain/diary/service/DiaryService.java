@@ -11,30 +11,22 @@ import com.canvi.hama.domain.diary.request.DiaryRequest;
 import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
 import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.List;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
 
 @Service
+@RequiredArgsConstructor
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
     private final ImageRepository imageRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
-
-    @Autowired
-    public DiaryService(DiaryRepository diaryRepository, ImageRepository imageRepository, CommentRepository commentRepository, UserRepository userRepository) {
-        this.diaryRepository = diaryRepository;
-        this.imageRepository = imageRepository;
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-    }
 
     public void saveDiary(DiaryRequest diaryRequest) {
         User user = getUserByUserId(diaryRequest.getUserId());
