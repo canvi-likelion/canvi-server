@@ -54,20 +54,21 @@ public class AuthService {
         User user = User.create(
                 signUpRequest.username(),
                 signUpRequest.email(),
-                passwordEncoder.encode(signUpRequest.password())
+                passwordEncoder.encode(signUpRequest.password()),
+                ("https://canvi-hama-bucket.s3.ap-northeast-2.amazonaws.com/hama_profile.png")        // 기본 이미지 제공
         );
         userRepository.save(user);
     }
 
     @Transactional
     public LoginResponse authenticateUser(LoginRequest loginRequest) {
-        String username = loginRequest.username();
+        String email = loginRequest.email();
         String password = loginRequest.password();
 
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
-                            username,
+                            email,
                             password
                     )
             );
@@ -77,26 +78,26 @@ public class AuthService {
             String accessToken = tokenProvider.generateAccessToken(authentication);
             String refreshToken = tokenProvider.generateRefreshToken(authentication);
 
-            redisUtil.setDataExpire(loginRequest.username(), refreshToken,
+            redisUtil.setDataExpire(loginRequest.email(), refreshToken,
                     tokenProvider.getRefreshTokenExpirationInSeconds());
 
-            return new LoginResponse(username, accessToken, refreshToken);
+            return new LoginResponse(email, accessToken, refreshToken);
         } catch (BadCredentialsException e) {
             throw new BaseException(BaseResponseStatus.INVALID_CREDENTIALS);
         }
     }
 
-    public void logoutUser(String username) {
-        redisUtil.deleteData(username);
+    public void logoutUser(String email) {
+        redisUtil.deleteData(email);
     }
 
-    public RefreshTokenResponse generateNewAccessToken(String username) {
-        String storedRefreshToken = redisUtil.getData(username);
+    public RefreshTokenResponse generateNewAccessToken(String email) {
+        String storedRefreshToken = redisUtil.getData(email);
         if (storedRefreshToken == null) {
             throw new BaseException(BaseResponseStatus.INVALID_TOKEN);
         }
 
-        String newAccessToken = tokenProvider.generateAccessTokenFromUsername(username);
+        String newAccessToken = tokenProvider.generateAccessTokenFromUsername(email);
         return new RefreshTokenResponse(newAccessToken);
     }
 
@@ -117,11 +118,11 @@ public class AuthService {
         emailAuthService.sendNewPassword(user.getEmail(), newPassword);
     }
 
-    public void deleteUser(String username) {
-        User user = userRepository.findByUsername(username)
+    public void deleteUser(String email) {
+        User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
-        redisUtil.deleteData(username);
+        redisUtil.deleteData(email);
         userRepository.delete(user);
     }
 

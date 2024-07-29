@@ -2,15 +2,8 @@ package com.canvi.hama.domain.diary.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
 import com.canvi.hama.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
+
 import java.time.LocalDate;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

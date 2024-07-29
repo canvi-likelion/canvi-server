@@ -17,7 +17,6 @@ public class Image extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @JsonBackReference
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_id", referencedColumnName = "id", nullable = false)
     private Diary diary;

@@ -14,4 +14,5 @@ public interface DiaryRepository extends JpaRepository<Diary, Long> {
     List<Diary> findByUserId(Long userId);
 
     Optional<Diary> findByUserIdAndDiaryDate(Long userId, LocalDate date);
+    boolean existsByUserIdAndDiaryDate(Long userId, LocalDate date);
 }

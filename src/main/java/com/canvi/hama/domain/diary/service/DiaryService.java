@@ -12,6 +12,8 @@ import com.canvi.hama.domain.diary.request.DiaryRequest;
 import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
 import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
+import com.canvi.hama.domain.user.service.UserService;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -22,29 +24,23 @@ import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
     private final ImageRepository imageRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
+    private final UserService userService;
 
-    @Autowired
-    public DiaryService(DiaryRepository diaryRepository, ImageRepository imageRepository, CommentRepository commentRepository, UserRepository userRepository) {
-        this.diaryRepository = diaryRepository;
-        this.imageRepository = imageRepository;
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-    }
 
     public void saveDiary(DiaryRequest diaryRequest) {
-        User user = getUserByUserId(diaryRequest.getUserId());
-        Optional<Diary> diaryOptional = diaryRepository.findByUserIdAndDiaryDate(diaryRequest.getUserId(), diaryRequest.getDiaryDate());
-        if (diaryOptional.isPresent()) {
+        User user = userService.getUserByUserId(diaryRequest.getUserId());
+        boolean isExistDiary = diaryRepository.existsByUserIdAndDiaryDate(diaryRequest.getUserId(), diaryRequest.getDiaryDate());
+        if (isExistDiary) {
             throw new DiaryException(DiaryResponseStatus.DIARY_ALREADY_EXISTS);
         }
 
@@ -59,14 +55,10 @@ public class DiaryService {
     }
 
     public List<Diary> getDiariesByUserId(Long userId) {
-        User user = getUserByUserId(userId);
+        User user = userService.getUserByUserId(userId);
         return diaryRepository.findByUserId(userId);
     }
 
-    public User getUserByUserId(Long userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
-    }
 
     public void saveComment(Long diaryId, Long userId, String comment) {
         Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
@@ -115,7 +107,7 @@ public class DiaryService {
     }
 
     public DiarySummaryResponse getDiaryByDate(Long userId, LocalDate date) {
-        User user = getUserByUserId(userId);
+        User user = userService.getUserByUserId(userId);
         Diary diary = diaryRepository.findByUserIdAndDiaryDate(user.getId(), date)
                 .orElseThrow(() -> new DiaryException(DiaryResponseStatus.DIARY_NOT_FOUND));
 

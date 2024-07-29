@@ -7,10 +7,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.validation.constraints.NotNull;
-import lombok.AccessLevel;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 @Entity
 @Getter
@@ -23,6 +20,7 @@ public class User extends BaseEntity {
     private Long id;
 
     @NotNull
+    @Setter
     @Column(unique = true, length = 10)
     private String username;
 
@@ -37,21 +35,27 @@ public class User extends BaseEntity {
     @NotNull
     private int credits = DEFAULT_CREDITS;
 
+    @Setter
+    @Column(name = "profile")
+    private String profile;
+
     @Column
     private String refreshToken;
 
     @Builder(access = AccessLevel.PRIVATE)
-    private User(String username, String password, String email) {
+    private User(String username, String password, String email, String profile) {
         this.username = username;
         this.email = email;
         this.password = password;
+        this.profile = profile;
     }
 
-    public static User create(String username, String email, String password) {
+    public static User create(String username, String email, String password, String profile) {
         return User.builder()
                 .username(username)
                 .email(email)
                 .password(password)
+                .profile(profile)
                 .build();
     }
 

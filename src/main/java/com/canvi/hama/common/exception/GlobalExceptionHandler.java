@@ -3,6 +3,7 @@ package com.canvi.hama.common.exception;
 import com.canvi.hama.common.response.BaseResponse;
 import com.canvi.hama.common.response.BaseResponseStatus;
 import com.canvi.hama.domain.diary.exception.DiaryException;
+import com.canvi.hama.domain.user.exception.UserException;
 import lombok.extern.slf4j.Slf4j;
 import java.util.HashMap;
 import java.util.Map;
@@ -51,6 +52,12 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(DiaryException.class)
     public ResponseEntity<BaseResponse<?>> handleDiaryException(DiaryException ex) {
+        return ResponseEntity.status(ex.getStatus().getCode())
+                .body(new BaseResponse<>(ex.getStatus().isSuccess(), ex.getStatus().getCode(), ex.getStatus().getMessage()));
+    }
+
+    @ExceptionHandler(UserException.class)
+    public ResponseEntity<BaseResponse<?>> handleUserException(UserException ex) {
         return ResponseEntity.status(ex.getStatus().getCode())
                 .body(new BaseResponse<>(ex.getStatus().isSuccess(), ex.getStatus().getCode(), ex.getStatus().getMessage()));
     }
