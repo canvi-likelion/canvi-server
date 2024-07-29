@@ -11,6 +11,7 @@ import com.canvi.hama.domain.user.exception.UserResponseStatus;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,27 +27,32 @@ public class UserService {
                 .orElseThrow(() -> new UserException(UserResponseStatus.NOT_FOUND));
     }
 
-    public MyPageResponse getMyPage(Long userId) {
-        User user = getUserByUserId(userId);
-        return new MyPageResponse(user);
+    public User getUserFromUserDetails(UserDetails userDetails) {
+        return userRepository.findByEmail(userDetails.getUsername())
+                .orElseThrow(() -> new UserException(UserResponseStatus.NOT_FOUND));
     }
 
-    public MyPageInfoResponse getMyPageInfo(Long userId) {
-        User user = getUserByUserId(userId);
-        return new MyPageInfoResponse(user);
+    public MyPageResponse getMyPage(UserDetails userDetails) {
+        User user = getUserFromUserDetails(userDetails);
+        return new MyPageResponse(user.getProfile(), user.getUsername());
+    }
+
+    public MyPageInfoResponse getMyPageInfo(UserDetails userDetails) {
+        User user = getUserFromUserDetails(userDetails);
+        return new MyPageInfoResponse(user.getUsername(), user.getEmail());
     }
 
     @Transactional
-    public void updateName(UpdateNameRequest updateNameRequest) {
-        User user = getUserByUserId(updateNameRequest.getUserId());
+    public void updateUsername(UserDetails userDetails, UpdateNameRequest updateNameRequest) {
+        User user = getUserFromUserDetails(userDetails);
 
-        if (!user.getUsername().equals(updateNameRequest.getUsername())) {
-            if (userRepository.existsByUsername(updateNameRequest.getUsername())) {
+        if (!user.getUsername().equals(updateNameRequest.username())) {
+            if (userRepository.existsByUsername(updateNameRequest.username())) {
                 throw new UserException(UserResponseStatus.NAME_ALREADY_EXIST);
             }
         }
         try {
-            user.setUsername(updateNameRequest.getUsername());
+            user.updateUsername(updateNameRequest.username());
             userRepository.save(user);
         } catch (Exception e) {
             throw new UserException(UserResponseStatus.DATABASE_INSERT_ERROR);
@@ -54,10 +60,11 @@ public class UserService {
     }
 
     @Transactional
-    public void updateProfileImage(UpdateProfileImageRequest updateProfileImageRequest) {
-        User user = getUserByUserId(updateProfileImageRequest.getUserId());
-        user.setProfile(updateProfileImageRequest.getProfile());
+    public void updateProfileImage(UserDetails userDetails, UpdateProfileImageRequest updateProfileImageRequest) {
+        User user = getUserFromUserDetails(userDetails);
+
         try {
+            user.updateProfile(updateProfileImageRequest.getProfile());
             userRepository.save(user);
         } catch (Exception e) {
             throw new UserException(UserResponseStatus.DATABASE_INSERT_ERROR);
