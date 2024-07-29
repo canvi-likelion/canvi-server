@@ -54,8 +54,7 @@ public class AuthService {
         User user = User.create(
                 signUpRequest.username(),
                 signUpRequest.email(),
-                passwordEncoder.encode(signUpRequest.password()),
-                ("https://canvi-hama-bucket.s3.ap-northeast-2.amazonaws.com/hama_profile.png")        // 기본 이미지 제공
+                passwordEncoder.encode(signUpRequest.password())
         );
         userRepository.save(user);
     }

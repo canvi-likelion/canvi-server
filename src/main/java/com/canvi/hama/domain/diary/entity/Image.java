@@ -1,7 +1,6 @@
 package com.canvi.hama.domain.diary.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
-import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.*;
 

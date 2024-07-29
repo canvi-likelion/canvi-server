@@ -14,13 +14,13 @@ import lombok.*;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class User extends BaseEntity {
     private static final int DEFAULT_CREDITS = 5;
+    private static final String DEFAULT_PROFILE = "https://canvi-hama-bucket.s3.ap-northeast-2.amazonaws.com/hama_profile.png";
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @NotNull
-    @Setter
     @Column(unique = true, length = 10)
     private String username;
 
@@ -35,7 +35,6 @@ public class User extends BaseEntity {
     @NotNull
     private int credits = DEFAULT_CREDITS;
 
-    @Setter
     @Column(name = "profile")
     private String profile;
 
@@ -47,15 +46,15 @@ public class User extends BaseEntity {
         this.username = username;
         this.email = email;
         this.password = password;
-        this.profile = profile;
+        this.profile = DEFAULT_PROFILE;
     }
 
-    public static User create(String username, String email, String password, String profile) {
+    public static User create(String username, String email, String password) {
         return User.builder()
                 .username(username)
                 .email(email)
                 .password(password)
-                .profile(profile)
+                .profile(DEFAULT_PROFILE)
                 .build();
     }
 
@@ -64,4 +63,8 @@ public class User extends BaseEntity {
     public void updateCredits(int credits) {
         this.credits = credits;
     }
+
+    public void updateUsername(String username) { this.username = username; }
+
+    public void updateProfile(String profile) { this.profile = profile; }
 }
