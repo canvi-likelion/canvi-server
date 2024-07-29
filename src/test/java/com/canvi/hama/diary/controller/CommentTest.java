@@ -4,8 +4,8 @@ package com.canvi.hama.diary.controller;
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
 
-import com.canvi.hama.domain.auth.dto.LoginRequest;
-import com.canvi.hama.domain.auth.dto.SignupRequest;
+import com.canvi.hama.domain.auth.dto.request.LoginRequest;
+import com.canvi.hama.domain.auth.dto.request.SignupRequest;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.exception.DiaryException;

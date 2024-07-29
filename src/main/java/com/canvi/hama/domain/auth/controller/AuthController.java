@@ -2,11 +2,11 @@ package com.canvi.hama.domain.auth.controller;
 
 import com.canvi.hama.common.response.BaseResponse;
 import com.canvi.hama.common.response.BaseResponseStatus;
-import com.canvi.hama.domain.auth.dto.LoginRequest;
-import com.canvi.hama.domain.auth.dto.LoginResponse;
-import com.canvi.hama.domain.auth.dto.RefreshTokenResponse;
-import com.canvi.hama.domain.auth.dto.ResetPasswordRequest;
-import com.canvi.hama.domain.auth.dto.SignupRequest;
+import com.canvi.hama.domain.auth.dto.request.LoginRequest;
+import com.canvi.hama.domain.auth.dto.response.LoginResponse;
+import com.canvi.hama.domain.auth.dto.response.RefreshTokenResponse;
+import com.canvi.hama.domain.auth.dto.request.ResetPasswordRequest;
+import com.canvi.hama.domain.auth.dto.request.SignupRequest;
 import com.canvi.hama.domain.auth.service.AuthService;
 import com.canvi.hama.domain.auth.swagger.RefreshAccessTokenApi;
 import com.canvi.hama.domain.auth.swagger.UserAuthenticateApi;

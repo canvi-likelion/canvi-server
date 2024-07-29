@@ -58,7 +58,7 @@ public class DiaryController {
     @SaveCommentApi
     @PostMapping("/{diaryId}/comments")
     public ResponseEntity<DiaryResponseStatus> addComment(@AuthenticationPrincipal UserDetails userDetails,
-                                                          @PathVariable @Valid @NotNull(message = "다이어리 아이디가 비어있습니다.") Long diaryId,
+                                                          @PathVariable @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId,
                                                           @RequestBody @Valid CommentSaveRequest commentSaveRequest) {
         diaryService.saveComment(diaryId, commentSaveRequest.comment());
         return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
@@ -67,7 +67,7 @@ public class DiaryController {
     @GetCommentApi
     @GetMapping("/{diaryId}/comments")
     public ResponseEntity<Comment> getDiaryComments(
-            @PathVariable @Valid @NotNull(message = "다이어리 아이디가 비어있습니다.") Long diaryId) {
+            @PathVariable @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId) {
         Comment comments = diaryService.getCommentByDiaryId(diaryId);
         return ResponseEntity.ok(comments);
     }
@@ -75,7 +75,7 @@ public class DiaryController {
     @SaveImageApi
     @PostMapping("/{diaryId}/images")
     public ResponseEntity<DiaryResponseStatus> addImage(
-            @PathVariable @Valid @NotNull(message = "다이어리 아이디가 비어있습니다.") Long diaryId,
+            @PathVariable @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId,
             @RequestBody @Valid ImageSaveRequest imageSaveRequest) {
 
         diaryService.saveImageFromUrl(diaryId, imageSaveRequest.imageUrl());
@@ -86,7 +86,7 @@ public class DiaryController {
     @GetImageApi
     @GetMapping("/{diaryId}/images")
     public ResponseEntity<Resource> getDiaryImage(
-            @PathVariable @Valid @NotNull(message = "다이어리 아이디가 비어있습니다.") Long diaryId) {
+            @PathVariable @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId) {
         Resource image = diaryService.getImageByDiaryId(diaryId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
