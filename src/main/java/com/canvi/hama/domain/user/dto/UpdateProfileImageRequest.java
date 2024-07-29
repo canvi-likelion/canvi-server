@@ -5,7 +5,7 @@ import lombok.NoArgsConstructor;
 
 @Getter
 @NoArgsConstructor
-public class UpdateProfileImageRequest {
-    private Long userId;
-    private String profile;
+public record UpdateProfileImageRequest(
+        String profile
+) {
 }
