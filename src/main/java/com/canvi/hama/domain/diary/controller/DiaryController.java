@@ -18,6 +18,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -84,11 +85,11 @@ public class DiaryController {
 
     @GetImageApi
     @GetMapping("/{diaryId}/images")
-    public ResponseEntity<byte[]> getDiaryImage(
+    public ResponseEntity<Resource> getDiaryImage(
             @PathVariable @Valid @NotNull(message = "다이어리 아이디가 비어있습니다.") Long diaryId) {
-        byte[] imageBytes = diaryService.getImageByDiaryId(diaryId);
+        Resource image = diaryService.getImageByDiaryId(diaryId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);
-        return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        return ResponseEntity.ok().headers(headers).body(image);
     }
 }
