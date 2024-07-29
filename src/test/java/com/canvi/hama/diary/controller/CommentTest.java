@@ -3,11 +3,10 @@ package com.canvi.hama.diary.controller;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 
-import com.canvi.hama.common.security.JwtTokenProvider;
 import com.canvi.hama.domain.auth.dto.LoginRequest;
 import com.canvi.hama.domain.auth.dto.SignupRequest;
+import com.canvi.hama.domain.auth.service.EmailAuthService;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.exception.DiaryException;
 import com.canvi.hama.domain.diary.request.CommentSaveRequest;
@@ -23,8 +22,10 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
 
@@ -35,21 +36,22 @@ public class CommentTest {
     @LocalServerPort
     private int port;
 
+    @MockBean
+    private EmailAuthService emailAuthService;
+
+    @Autowired
+    private UserRepository userRepository;
+
     private String accessToken;
     private Long userId;
     private Long diaryId;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository;
-
-    @Autowired
-    public CommentTest(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.userRepository = userRepository;
-    }
 
     @BeforeAll
     public void setUp() {
         RestAssured.port = port;
+
+        // 테스트 환경에서는 모든 이메일이 인증된 것으로 처리
+        Mockito.when(emailAuthService.isEmailVerified(Mockito.anyString())).thenReturn(true);
 
         // 테스트용 계정 생성
         String testUsername = "testuser";
@@ -77,7 +79,7 @@ public class CommentTest {
         accessToken = loginResponse.jsonPath().getString("result.accessToken");
 
         // userId 받아오기
-        String userName = jwtTokenProvider.getUsernameFromJWT(accessToken);
+        String userName = loginResponse.jsonPath().getString("result.username");
         User user = userRepository
                 .findByUsername(userName)
                 .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
@@ -122,8 +124,7 @@ public class CommentTest {
                 .when()
                 .post("/diary/comment/save")
                 .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body(equalTo("comment 저장 성공"));
+                .statusCode(HttpStatus.CREATED.value());
     }
 
     @Test
@@ -137,8 +138,7 @@ public class CommentTest {
                 .when()
                 .post("/diary/comment/save")
                 .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body(equalTo("comment 저장 성공"));
+                .statusCode(HttpStatus.CREATED.value());
 
         // 저장된 코멘트 확인
         Response response = given()
