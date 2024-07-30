@@ -64,7 +64,7 @@ public class UserService {
         User user = getUserFromUserDetails(userDetails);
 
         try {
-            user.updateProfile(updateProfileImageRequest.getProfile());
+            user.updateProfile(updateProfileImageRequest.profile());
             userRepository.save(user);
         } catch (Exception e) {
             throw new UserException(UserResponseStatus.DATABASE_INSERT_ERROR);
