@@ -43,8 +43,8 @@ public class JwtTokenProvider {
         return generateToken(userDetails.getUsername(), accessTokenExpirationInMs);
     }
 
-    public String generateAccessTokenFromUsername(String username) {
-        return generateToken(username, accessTokenExpirationInMs);
+    public String generateAccessTokenFromUsername(String email) {
+        return generateToken(email, accessTokenExpirationInMs);
     }
 
     public String generateRefreshToken(Authentication authentication) {
@@ -52,19 +52,19 @@ public class JwtTokenProvider {
         return generateToken(userDetails.getUsername(), refreshTokenExpirationInMs);
     }
 
-    private String generateToken(String username, long expirationInMs) {
+    private String generateToken(String email, long expirationInMs) {
         Date now = new Date();
         Date expiryDate = new Date(now.getTime() + expirationInMs);
 
         return Jwts.builder()
-                .subject(username)
+                .subject(email)
                 .issuedAt(now)
                 .expiration(expiryDate)
                 .signWith(key)
                 .compact();
     }
 
-    public String getUsernameFromJWT(String token) {
+    public String getEmailFromJWT(String token) {
         try {
             Claims claims = Jwts.parser()
                     .verifyWith(key)
@@ -91,8 +91,8 @@ public class JwtTokenProvider {
     }
 
     public Authentication getAuthentication(String token) {
-        String username = getUsernameFromJWT(token);
-        UserDetails userDetails = customUserDetailsService.loadUserByUsername(username);
+        String email = getEmailFromJWT(token);
+        UserDetails userDetails = customUserDetailsService.loadUserByUsername(email);
         return new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
     }
 

@@ -17,7 +17,6 @@ public class Image extends BaseEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "diary_id")
-    @NotNull
     private Diary diary;
 
     @Column(name = "url")
