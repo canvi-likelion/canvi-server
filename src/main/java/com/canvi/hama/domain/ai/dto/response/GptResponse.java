@@ -1,4 +1,4 @@
-package com.canvi.hama.domain.ai.response;
+package com.canvi.hama.domain.ai.dto.response;
 
 import lombok.*;
 
@@ -6,10 +6,8 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class DalleResponse {
+public class GptResponse {
     private Long statusCode;
-    private Integer created;
-
     private Data data;
 
     @Getter
@@ -17,7 +15,7 @@ public class DalleResponse {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class Data {
-        private String revised_prompt;
-        private String url;
+        private String gptResult;
+
     }
 }

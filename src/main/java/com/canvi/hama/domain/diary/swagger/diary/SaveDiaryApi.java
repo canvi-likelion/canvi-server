@@ -1,7 +1,6 @@
 package com.canvi.hama.domain.diary.swagger.diary;
 
 import com.canvi.hama.common.response.BaseResponse;
-import com.canvi.hama.domain.ai.response.DalleResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;

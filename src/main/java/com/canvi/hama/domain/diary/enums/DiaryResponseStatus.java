@@ -1,4 +1,4 @@
-package com.canvi.hama.domain.diary.response;
+package com.canvi.hama.domain.diary.enums;
 
 import lombok.Getter;
 import org.springframework.http.HttpStatus;

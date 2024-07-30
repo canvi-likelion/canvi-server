@@ -9,6 +9,6 @@ import java.util.Optional;
 
 @Repository
 public interface CommentRepository extends JpaRepository<Comment, Long> {
-    Optional<Comment> findByDiaryId(Diary diaryId);
+    Optional<Comment> findByDiary(Diary diary);
 
 }

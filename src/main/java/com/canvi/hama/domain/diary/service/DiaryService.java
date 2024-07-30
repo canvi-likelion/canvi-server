@@ -1,124 +1,127 @@
 package com.canvi.hama.domain.diary.service;
 
-import com.canvi.hama.domain.diary.dto.DiarySummaryResponse;
+import com.canvi.hama.domain.diary.dto.request.DiaryRequest;
 import com.canvi.hama.domain.diary.entity.Comment;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.entity.Image;
+import com.canvi.hama.domain.diary.enums.DiaryResponseStatus;
 import com.canvi.hama.domain.diary.exception.DiaryException;
 import com.canvi.hama.domain.diary.repository.CommentRepository;
 import com.canvi.hama.domain.diary.repository.DiaryRepository;
 import com.canvi.hama.domain.diary.repository.ImageRepository;
-import com.canvi.hama.domain.diary.request.DiaryRequest;
-import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
 import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-
-import java.io.File;
-import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
+import java.net.MalformedURLException;
 import java.net.URL;
-import java.time.LocalDate;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
-@Slf4j
+@RequiredArgsConstructor
 public class DiaryService {
+
+    private static final String IMAGE_DIRECTORY = "./user_images";
+    private static final String IMAGE_FILE_FORMAT = "image_%d.jpg";
 
     private final DiaryRepository diaryRepository;
     private final ImageRepository imageRepository;
     private final CommentRepository commentRepository;
     private final UserRepository userRepository;
 
-    @Autowired
-    public DiaryService(DiaryRepository diaryRepository, ImageRepository imageRepository, CommentRepository commentRepository, UserRepository userRepository) {
-        this.diaryRepository = diaryRepository;
-        this.imageRepository = imageRepository;
-        this.commentRepository = commentRepository;
-        this.userRepository = userRepository;
-    }
-
-    public void saveDiary(DiaryRequest diaryRequest) {
-        User user = getUserByUserId(diaryRequest.getUserId());
-        Optional<Diary> diaryOptional = diaryRepository.findByUserIdAndDiaryDate(diaryRequest.getUserId(), diaryRequest.getDiaryDate());
-        if (diaryOptional.isPresent()) {
-            throw new DiaryException(DiaryResponseStatus.DIARY_ALREADY_EXISTS);
-        }
-
-        Diary diary = Diary.builder()
-                .user(user)
-                .title(diaryRequest.getTitle())
-                .content(diaryRequest.getContent())
-                .diaryDate(diaryRequest.getDiaryDate())
-                .build();
-
+    public void saveDiary(String username, DiaryRequest diaryRequest) {
+        User user = getUserByUsername(username);
+        Diary diary = Diary.create(user, diaryRequest.title(), diaryRequest.content(), diaryRequest.diaryDate());
         diaryRepository.save(diary);
     }
 
-    public List<Diary> getDiariesByUserId(Long userId) {
-        User user = getUserByUserId(userId);
-        return diaryRepository.findByUserId(userId);
+    @Transactional(readOnly = true)
+    public List<Diary> getDiariesByUsername(String username) {
+        User user = getUserByUsername(username);
+        return diaryRepository.findAllByUser(user);
     }
 
-    public User getUserByUserId(Long userId) {
-        return userRepository.findById(userId)
+    @Transactional(readOnly = true)
+    public Comment getCommentByDiaryId(Long diaryId) {
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+        return commentRepository.findByDiary(diary)
                 .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
     }
 
-    public void saveComment(Long diaryId, Long userId, String comment) {
-        Diary diary = diaryRepository.findById(diaryId).orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
-
-        User user = userRepository.findById(userId).orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
-
-        Comment saveComment = Comment.builder().diaryId(diary).userId(user).comment(comment).build();
-
+    public void saveComment(Long diaryId, String comment) {
+        Diary diary = diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+        Comment saveComment = Comment.create(diary, comment);
         commentRepository.save(saveComment);
     }
 
+    @Transactional
     public void saveImageFromUrl(Long diaryId, String imageUrl) {
+        Diary diary = getDiaryById(diaryId);
+        Path imagePath = downloadImage(diaryId, imageUrl);
+        saveImageMetadata(diary, imagePath);
+    }
+
+    @Transactional(readOnly = true)
+    public Resource getImageByDiaryId(Long diaryId) {
+        Image image = imageRepository.findByDiaryId(diaryId)
+                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
         try {
-            URL url = new URL(imageUrl);
-            InputStream in = url.openStream();
-
-            File directory = new File("./user_images");
-            if (!directory.exists()) {
-                directory.mkdirs(); // Create the directory if it doesn't exist
+            Path imagePath = Paths.get(image.getUrl());
+            Resource resource = new UrlResource(imagePath.toUri());
+            if (resource.exists() && resource.isReadable()) {
+                return resource;
+            } else {
+                throw new DiaryException(DiaryResponseStatus.NOT_FOUND);
             }
-            File file = new File(directory, "image_" + diaryId + ".jpg");
-
-            FileOutputStream out = new FileOutputStream(file);
-
-            byte[] buffer = new byte[2048];
-            int bytesRead;
-            while ((bytesRead = in.read(buffer)) != -1) {
-                out.write(buffer, 0, bytesRead);
-            }
-
-            out.close();
-            in.close();
-
-            Diary diary = diaryRepository.findById(diaryId)
-                    .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
-
-            Image image = Image.builder()
-                    .diary(diary)
-                    .url(file.getAbsolutePath())
-                    .build();
-
-            imageRepository.save(image);
-        } catch (Exception e) {
+        } catch (MalformedURLException e) {
             throw new DiaryException(DiaryResponseStatus.INTERNAL_SERVER_ERROR);
         }
     }
 
-    public DiarySummaryResponse getDiaryByDate(Long userId, LocalDate date) {
-        User user = getUserByUserId(userId);
-        Diary diary = diaryRepository.findByUserIdAndDiaryDate(user.getId(), date)
-                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.DIARY_NOT_FOUND));
+    private User getUserByUsername(String username) {
+        return userRepository.findByUsername(username)
+                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+    }
 
-        return new DiarySummaryResponse(diary);
+    private Diary getDiaryById(Long diaryId) {
+        return diaryRepository.findById(diaryId)
+                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+    }
+
+    private Path downloadImage(Long diaryId, String imageUrl) {
+        try {
+            URL url = new URL(imageUrl);
+            Path filePath = getImageFilePath(diaryId);
+            Files.createDirectories(filePath.getParent());
+
+            try (InputStream in = url.openStream();
+                 OutputStream out = Files.newOutputStream(filePath)) {
+                in.transferTo(out);
+            }
+
+            return filePath;
+        } catch (IOException e) {
+            throw new DiaryException(DiaryResponseStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Path getImageFilePath(Long diaryId) {
+        return Paths.get(IMAGE_DIRECTORY, String.format(IMAGE_FILE_FORMAT, diaryId));
+    }
+
+    private void saveImageMetadata(Diary diary, Path imagePath) {
+        Image image = Image.create(diary, imagePath.toAbsolutePath().toString());
+        imageRepository.save(image);
     }
 }

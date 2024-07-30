@@ -11,8 +11,9 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
-import lombok.AllArgsConstructor;
+import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -20,9 +21,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "diary")
 @Getter
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Diary extends BaseEntity {
 
     @Id
@@ -30,19 +29,37 @@ public class Diary extends BaseEntity {
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id", nullable = false)
+    @JoinColumn(name = "user_id")
+    @NotNull
     private User user;
 
-    @Column(name = "title", nullable = false)
+    @Column(name = "title")
+    @NotNull
     private String title;
 
     @Lob
-    @Column(name = "content", nullable = false, columnDefinition = "LONGTEXT")
+    @Column(name = "content", columnDefinition = "LONGTEXT")
+    @NotNull
     private String content;
 
-    @Column(name = "diary_date", nullable = false)
+    @Column(name = "diary_date")
+    @NotNull
     private LocalDate diaryDate;
 
-    @OneToOne(mappedBy = "diary", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
-    private Image image;
+    @Builder(access = AccessLevel.PRIVATE)
+    private Diary(User user, String title, String content, LocalDate diaryDate) {
+        this.user = user;
+        this.title = title;
+        this.content = content;
+        this.diaryDate = diaryDate;
+    }
+
+    public static Diary create(User user, String title, String content, LocalDate diaryDate) {
+        return Diary.builder()
+                .user(user)
+                .title(title)
+                .content(content)
+                .diaryDate(diaryDate)
+                .build();
+    }
 }
