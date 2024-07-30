@@ -10,8 +10,8 @@ import static org.mockito.Mockito.when;
 
 import com.canvi.hama.common.exception.BaseException;
 import com.canvi.hama.common.response.BaseResponseStatus;
-import com.canvi.hama.domain.auth.dto.SendCodeRequest;
-import com.canvi.hama.domain.auth.dto.VerifyCodeRequest;
+import com.canvi.hama.domain.auth.dto.request.SendCodeRequest;
+import com.canvi.hama.domain.auth.dto.request.VerifyCodeRequest;
 import com.canvi.hama.domain.auth.service.AuthService;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
 import io.restassured.RestAssured;

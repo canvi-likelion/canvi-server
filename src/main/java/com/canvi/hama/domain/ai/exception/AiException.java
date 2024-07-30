@@ -1,6 +1,6 @@
 package com.canvi.hama.domain.ai.exception;
 
-import com.canvi.hama.domain.ai.response.AiResponseStatus;
+import com.canvi.hama.domain.ai.enums.AiResponseStatus;
 import lombok.Getter;
 import lombok.Setter;
 

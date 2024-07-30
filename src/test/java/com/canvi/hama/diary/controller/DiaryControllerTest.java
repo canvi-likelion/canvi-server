@@ -2,16 +2,14 @@ package com.canvi.hama.diary.controller;
 
 import static io.restassured.RestAssured.given;
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 
-import com.canvi.hama.common.security.JwtTokenProvider;
-import com.canvi.hama.domain.auth.dto.LoginRequest;
-import com.canvi.hama.domain.auth.dto.SignupRequest;
+import com.canvi.hama.domain.auth.dto.request.LoginRequest;
+import com.canvi.hama.domain.auth.dto.request.SignupRequest;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.exception.DiaryException;
-import com.canvi.hama.domain.diary.request.DiaryRequest;
-import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
+import com.canvi.hama.domain.diary.dto.request.DiaryRequest;
+import com.canvi.hama.domain.diary.enums.DiaryResponseStatus;
 import com.canvi.hama.domain.user.entity.User;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import io.restassured.RestAssured;
@@ -41,14 +39,9 @@ public class DiaryControllerTest {
 
     private String accessToken;
     private Long userId;
-    private final JwtTokenProvider jwtTokenProvider;
-    private final UserRepository userRepository;
 
     @Autowired
-    public DiaryControllerTest(JwtTokenProvider jwtTokenProvider, UserRepository userRepository) {
-        this.jwtTokenProvider = jwtTokenProvider;
-        this.userRepository = userRepository;
-    }
+    private UserRepository userRepository;
 
     @BeforeAll
     public void setUp() {
@@ -83,44 +76,41 @@ public class DiaryControllerTest {
         accessToken = loginResponse.jsonPath().getString("result.accessToken");
 
         // userId 받아오기
-        String userName = jwtTokenProvider.getUsernameFromJWT(accessToken);
+        String userName = loginResponse.jsonPath().getString("result.username");
         User user = userRepository
                 .findByUsername(userName)
                 .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
 
         userId = user.getId();
-
     }
 
     // 일기 저장 확인
     @Test
     public void saveDiary() {
-        DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
+        DiaryRequest diaryRequest = new DiaryRequest("Test Title", "Test Content", LocalDate.now());
 
         given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .body(diaryRequest)
                 .when()
-                .post("/diary/save")
+                .post("/diaries")
                 .then()
-                .statusCode(HttpStatus.CREATED.value())
-                .body(equalTo("일기 저장 완료"));
-
+                .statusCode(HttpStatus.CREATED.value());
     }
 
     // 일기 불러오기 확인
     @Test
     public void getDiariesByUserId() {
         // 일기 저장
-        DiaryRequest diaryRequest = new DiaryRequest(userId, "Test Title", "Test Content", LocalDate.now());
+        DiaryRequest diaryRequest = new DiaryRequest("Test Title", "Test Content", LocalDate.now());
 
         given()
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .body(diaryRequest)
                 .when()
-                .post("/diary/save")
+                .post("/diaries" )
                 .then()
                 .statusCode(HttpStatus.CREATED.value());
 
@@ -129,7 +119,7 @@ public class DiaryControllerTest {
                 .header("Authorization", "Bearer " + accessToken)
                 .contentType(ContentType.JSON)
                 .when()
-                .get("/diary/user/" + userId)
+                .get("/diaries")
                 .then()
                 .statusCode(HttpStatus.OK.value())
                 .extract().response();
@@ -139,5 +129,4 @@ public class DiaryControllerTest {
         assertThat(diaries.get(0).getTitle()).isEqualTo("Test Title");
         assertThat(diaries.get(0).getContent()).isEqualTo("Test Content");
     }
-
 }
