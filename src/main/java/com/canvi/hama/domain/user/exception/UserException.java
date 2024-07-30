@@ -1,6 +1,5 @@
 package com.canvi.hama.domain.user.exception;
 
-import com.canvi.hama.domain.diary.response.DiaryResponseStatus;
 import lombok.Getter;
 import lombok.Setter;
 
