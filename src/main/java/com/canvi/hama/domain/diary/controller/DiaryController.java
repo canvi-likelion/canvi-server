@@ -1,10 +1,12 @@
 package com.canvi.hama.domain.diary.controller;
 
+import com.canvi.hama.common.response.BaseResponse;
 import com.canvi.hama.domain.diary.dto.request.CommentSaveRequest;
 import com.canvi.hama.domain.diary.dto.request.DiaryRequest;
 import com.canvi.hama.domain.diary.dto.request.ImageSaveRequest;
-import com.canvi.hama.domain.diary.entity.Comment;
-import com.canvi.hama.domain.diary.entity.Diary;
+import com.canvi.hama.domain.diary.dto.response.CommentGetResponse;
+import com.canvi.hama.domain.diary.dto.response.DiaryGetListResponse;
+import com.canvi.hama.domain.diary.dto.response.DiaryGetResponse;
 import com.canvi.hama.domain.diary.enums.DiaryResponseStatus;
 import com.canvi.hama.domain.diary.service.DiaryService;
 import com.canvi.hama.domain.diary.swagger.comment.GetCommentApi;
@@ -16,8 +18,9 @@ import com.canvi.hama.domain.diary.swagger.image.SaveImageApi;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import java.util.List;
+
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -36,6 +39,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/diaries")
 @RequiredArgsConstructor
+@Slf4j
 public class DiaryController {
 
     private final DiaryService diaryService;
@@ -44,21 +48,27 @@ public class DiaryController {
     @PostMapping
     public ResponseEntity<DiaryResponseStatus> saveDiary(@AuthenticationPrincipal UserDetails userDetails,
                                                          @RequestBody @Valid DiaryRequest diaryRequest) {
-        diaryService.saveDiary(userDetails.getUsername(), diaryRequest);
+        diaryService.saveDiary(userDetails, diaryRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
     }
 
     @GetDiaryApi
     @GetMapping
-    public ResponseEntity<List<Diary>> getDiariesByUser(@AuthenticationPrincipal UserDetails userDetails) {
-        List<Diary> diaries = diaryService.getDiariesByUsername(userDetails.getUsername());
-        return ResponseEntity.ok(diaries);
+    public BaseResponse<DiaryGetListResponse> getDiariesByUser(@AuthenticationPrincipal UserDetails userDetails) {
+        return new BaseResponse<>(diaryService.getDiariesByUsername(userDetails));
     }
+
+    @GetDiaryApi
+    @GetMapping("/{date}")
+    public BaseResponse<DiaryGetResponse> getDiaryByDate(@AuthenticationPrincipal UserDetails userDetails, @PathVariable("date")String dateStr) {
+        return new BaseResponse<>(diaryService.getDiaryByDate(userDetails, dateStr));
+    }
+
 
     @SaveCommentApi
     @PostMapping("/{diaryId}/comments")
     public ResponseEntity<DiaryResponseStatus> addComment(@AuthenticationPrincipal UserDetails userDetails,
-                                                          @PathVariable @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId,
+                                                          @PathVariable("diaryId") @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId,
                                                           @RequestBody @Valid CommentSaveRequest commentSaveRequest) {
         diaryService.saveComment(diaryId, commentSaveRequest.comment());
         return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
@@ -66,16 +76,15 @@ public class DiaryController {
 
     @GetCommentApi
     @GetMapping("/{diaryId}/comments")
-    public ResponseEntity<Comment> getDiaryComments(
-            @PathVariable @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId) {
-        Comment comments = diaryService.getCommentByDiaryId(diaryId);
-        return ResponseEntity.ok(comments);
+    public BaseResponse<CommentGetResponse> getDiaryComments(
+            @PathVariable("diaryId") @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId) {
+        return new BaseResponse<>(diaryService.getCommentByDiaryId(diaryId));
     }
 
     @SaveImageApi
     @PostMapping("/{diaryId}/images")
     public ResponseEntity<DiaryResponseStatus> addImage(
-            @PathVariable @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId,
+            @PathVariable("diaryId") @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId,
             @RequestBody @Valid ImageSaveRequest imageSaveRequest) {
 
         diaryService.saveImageFromUrl(diaryId, imageSaveRequest.imageUrl());
@@ -86,7 +95,7 @@ public class DiaryController {
     @GetImageApi
     @GetMapping("/{diaryId}/images")
     public ResponseEntity<Resource> getDiaryImage(
-            @PathVariable @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId) {
+            @PathVariable("diaryId") @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId) {
         Resource image = diaryService.getImageByDiaryId(diaryId);
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.IMAGE_PNG);

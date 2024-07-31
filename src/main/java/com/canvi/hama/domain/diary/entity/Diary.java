@@ -2,15 +2,7 @@ package com.canvi.hama.domain.diary.entity;
 
 import com.canvi.hama.common.entity.BaseEntity;
 import com.canvi.hama.domain.user.entity.User;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.Lob;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import lombok.AccessLevel;
@@ -46,6 +38,14 @@ public class Diary extends BaseEntity {
     @NotNull
     private LocalDate diaryDate;
 
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "image_id")
+    private Image image;
+
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "comment_id")
+    private Comment comment;
+
     @Builder(access = AccessLevel.PRIVATE)
     private Diary(User user, String title, String content, LocalDate diaryDate) {
         this.user = user;
@@ -62,4 +62,8 @@ public class Diary extends BaseEntity {
                 .diaryDate(diaryDate)
                 .build();
     }
+
+    public void setImage(Image image) { this.image = image; }
+
+    public void setComment(Comment comment) { this.comment = comment; }
 }

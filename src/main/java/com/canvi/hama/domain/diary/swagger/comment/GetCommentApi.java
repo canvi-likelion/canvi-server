@@ -1,7 +1,6 @@
 package com.canvi.hama.domain.diary.swagger.comment;
 
 import com.canvi.hama.common.response.BaseResponse;
-import com.canvi.hama.domain.diary.entity.Comment;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -17,7 +16,7 @@ import java.lang.annotation.RetentionPolicy;
 @ApiResponses(value = {
         @ApiResponse(responseCode = "201",
                 content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
-                        schema = @Schema(implementation = Comment.class)))
+                        schema = @Schema(implementation = BaseResponse.class)))
 })
 public @interface GetCommentApi {
 }

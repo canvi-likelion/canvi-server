@@ -12,13 +12,18 @@ public enum DiaryResponseStatus {
     /** client error - 4xx */
     BAD_REQUEST(false, HttpStatus.BAD_REQUEST.value(), "요청 값이 옳지 않습니다."),
     NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "검색 결과가 존재하지 않습니다."),
-    DIARY_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "해당 날짜에 일기가 존재하지 않습니다."),
+    DIARY_NOT_FOUND(false, HttpStatus.NOT_FOUND.value(), "일기가 존재하지 않습니다."),
     DIARY_ALREADY_EXISTS(false, HttpStatus.CONFLICT.value(), "해당 날짜에 일기가 이미 존재합니다."),
+    INVALID_DATE_FORMAT(false, HttpStatus.BAD_REQUEST.value(), "잘못된 날짜 형식입니다."),
 
     UNPROCESSABLE_ENTITY(false, HttpStatus.UNPROCESSABLE_ENTITY.value(), "API 응답 형식이 잘못되었습니다."),
 
     /** server error - 5xx */
-    INTERNAL_SERVER_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "일기 관려 처리 중 에러가 발생했습니다.");
+    INTERNAL_SERVER_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "일기 관려 처리 중 에러가 발생했습니다."),
+    DATABASE_INSERT_ERROR(false, HttpStatus.INTERNAL_SERVER_ERROR.value(), "데이터베이스 저장에 실패하였습니다."),
+
+
+    ;
 
     private final boolean isSuccess;
     private final int code;

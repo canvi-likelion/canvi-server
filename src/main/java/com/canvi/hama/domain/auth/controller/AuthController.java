@@ -65,13 +65,6 @@ public class AuthController {
         return ResponseEntity.ok(new BaseResponse<>(refreshTokenResponse));
     }
 
-    @GetMapping("/find-username")
-    public ResponseEntity<BaseResponse<String>> findUsernameByEmail(
-            @Valid @RequestParam @NotBlank(message = "이메일이 비었습니다.") @Email(message = "이메일 형식이 유효하지 않습니다.") String email) {
-        String username = authService.findUsernameByEmail(email);
-        return ResponseEntity.ok(new BaseResponse<>(username));
-    }
-
     @PostMapping("/reset-password")
     public ResponseEntity<BaseResponse<Void>> resetPassword(@Valid @RequestBody ResetPasswordRequest request) {
         authService.resetPassword(request);

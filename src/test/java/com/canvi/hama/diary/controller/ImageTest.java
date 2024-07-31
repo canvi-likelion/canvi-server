@@ -5,12 +5,15 @@ import static io.restassured.RestAssured.given;
 import com.canvi.hama.domain.auth.dto.request.LoginRequest;
 import com.canvi.hama.domain.auth.dto.request.SignupRequest;
 import com.canvi.hama.domain.auth.service.EmailAuthService;
+import com.canvi.hama.domain.diary.dto.response.DiaryGetResponse;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.exception.DiaryException;
 import com.canvi.hama.domain.diary.dto.request.DiaryRequest;
 import com.canvi.hama.domain.diary.dto.request.ImageSaveRequest;
 import com.canvi.hama.domain.diary.enums.DiaryResponseStatus;
 import com.canvi.hama.domain.user.entity.User;
+import com.canvi.hama.domain.user.exception.UserException;
+import com.canvi.hama.domain.user.exception.UserResponseStatus;
 import com.canvi.hama.domain.user.repository.UserRepository;
 import io.restassured.RestAssured;
 import io.restassured.http.ContentType;
@@ -55,9 +58,9 @@ public class ImageTest {
         Mockito.when(emailAuthService.isEmailVerified(Mockito.anyString())).thenReturn(true);
 
         // 테스트용 계정 생성
-        String testUsername = "testuser";
+        String testEmail = "test@example.com";
         String testPassword = "password123";
-        SignupRequest signupRequest = new SignupRequest(testUsername, "test@example.com", testPassword);
+        SignupRequest signupRequest = new SignupRequest("testuser", testEmail, testPassword);
 
         given()
                 .contentType(ContentType.JSON)
@@ -68,7 +71,7 @@ public class ImageTest {
                 .statusCode(HttpStatus.OK.value());
 
         // 로그인 후 액세스 토큰을 받아옵니다
-        LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
+        LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
         Response loginResponse = given()
                 .contentType(ContentType.JSON)
                 .body(loginRequest)
@@ -80,10 +83,10 @@ public class ImageTest {
         accessToken = loginResponse.jsonPath().getString("result.accessToken");
 
         // userId 받아오기
-        String userName = loginResponse.jsonPath().getString("result.username");
+        String email = loginResponse.jsonPath().getString("result.username");
         User user = userRepository
-                .findByUsername(userName)
-                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+                .findByEmail(email)
+                .orElseThrow(() -> new UserException(UserResponseStatus.NOT_FOUND));
 
         userId = user.getId();
 
@@ -110,8 +113,8 @@ public class ImageTest {
                 .extract().response();
 
 
-        List<Diary> diaries = diaryResponse.jsonPath().getList(".", Diary.class);
-        diaryId = diaries.get(0).getId();
+        List<DiaryGetResponse> diaries = diaryResponse.jsonPath().getList("result.diaryGetResponseList", DiaryGetResponse.class);
+        diaryId = diaries.get(0).id();
     }
 
     @Test
