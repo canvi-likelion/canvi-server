@@ -15,8 +15,7 @@ public class Image extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "diary_id")
+    @OneToOne(mappedBy = "image")
     private Diary diary;
 
     @Column(name = "url")

@@ -85,7 +85,7 @@ public class AuthControllerTest {
 
     @Test
     public void whenValidLogin_thenReturnsToken() {
-        LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
+        LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
 
         Response response = given()
                 .contentType(ContentType.JSON)
@@ -96,7 +96,7 @@ public class AuthControllerTest {
                 .extract().response();
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.jsonPath().getString("result.username")).isEqualTo(testUsername);
+        assertThat(response.jsonPath().getString("result.username")).isEqualTo(testEmail);
         assertThat(response.jsonPath().getString("result.accessToken")).isNotBlank();
         assertThat(response.jsonPath().getString("result.refreshToken")).isNotBlank();
     }
@@ -104,7 +104,7 @@ public class AuthControllerTest {
     @Test
     public void whenValidRefreshToken_thenReturnsNewAccessToken() {
         // 로그인 후 리프레시 토큰 받기
-        LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
+        LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
         Response loginResponse = given()
                 .contentType(ContentType.JSON)
                 .body(loginRequest)
@@ -141,7 +141,7 @@ public class AuthControllerTest {
     @Test
     public void whenLogout_thenReturnsSuccess() {
         // 먼저 로그인
-        LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
+        LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
         Response loginResponse = given()
                 .contentType(ContentType.JSON)
                 .body(loginRequest)
@@ -170,37 +170,10 @@ public class AuthControllerTest {
         assertThat(refreshResponse.getStatusCode()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
     }
 
-    @Test
-    public void whenFindUsernameByValidEmail_thenReturnsUsername() {
-        Response response = given()
-                .contentType(ContentType.URLENC)
-                .param("email", testEmail)
-                .when()
-                .get("/api/auth/find-username")
-                .then()
-                .extract().response();
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK.value());
-        assertThat(response.jsonPath().getString("result")).isEqualTo(testUsername);
-    }
-
-    @Test
-    public void whenFindUsernameByInvalidEmail_thenReturnsError() {
-        String invalidEmail = "nonexistent@example.com";
-        Response response = given()
-                .contentType(ContentType.URLENC)
-                .param("email", invalidEmail)
-                .when()
-                .get("/api/auth/find-username")
-                .then()
-                .extract().response();
-
-        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND.value());
-    }
 
     @Test
     public void whenResetPasswordWithValidData_thenReturnsSuccess() {
-        ResetPasswordRequest request = new ResetPasswordRequest(testUsername, testEmail);
+        ResetPasswordRequest request = new ResetPasswordRequest(testEmail);
 
         Response response = given()
                 .contentType(ContentType.JSON)
@@ -215,7 +188,7 @@ public class AuthControllerTest {
 
     @Test
     public void whenResetPasswordWithInvalidData_thenReturnsError() {
-        ResetPasswordRequest request = new ResetPasswordRequest("invaliduser", "invalid@example.com");
+        ResetPasswordRequest request = new ResetPasswordRequest("invalid@example.com");
 
         Response response = given()
                 .contentType(ContentType.JSON)
@@ -231,7 +204,7 @@ public class AuthControllerTest {
     @Test
     public void whenResetPasswordAndLogin_thenLoginSucceeds() {
         // 먼저 비밀번호 재설정
-        ResetPasswordRequest resetRequest = new ResetPasswordRequest(testUsername, testEmail);
+        ResetPasswordRequest resetRequest = new ResetPasswordRequest(testEmail);
         given()
                 .contentType(ContentType.JSON)
                 .body(resetRequest)
@@ -240,7 +213,7 @@ public class AuthControllerTest {
 
         // 로그인 시도 (새 비밀번호는 이메일로 전송되므로 여기서는 확인할 수 없음)
         // 대신 로그인 실패 테스트를 수행
-        LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
+        LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
 
         Response loginResponse = given()
                 .contentType(ContentType.JSON)
@@ -256,7 +229,7 @@ public class AuthControllerTest {
     @Test
     public void whenWithdrawWithValidUser_thenReturnsSuccess() {
         // 먼저 로그인
-        LoginRequest loginRequest = new LoginRequest(testUsername, testPassword);
+        LoginRequest loginRequest = new LoginRequest(testEmail, testPassword);
         Response loginResponse = given()
                 .contentType(ContentType.JSON)
                 .body(loginRequest)

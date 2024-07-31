@@ -100,14 +100,8 @@ public class AuthService {
         return new RefreshTokenResponse(newAccessToken);
     }
 
-    public String findUsernameByEmail(String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
-        return user.getUsername();
-    }
-
     public void resetPassword(ResetPasswordRequest request) {
-        User user = userRepository.findByUsernameAndEmail(request.username(), request.email())
+        User user = userRepository.findByEmail(request.email())
                 .orElseThrow(() -> new BaseException(BaseResponseStatus.NON_EXIST_USER));
 
         String newPassword = generateRandomPassword();
