@@ -34,7 +34,7 @@ public class GptService {
     private static final String OPENAI_API_URL = "https://api.openai.com/v1/chat/completions";
     private static final String DALLE_API_URL = "https://api.openai.com/v1/images/generations";
 
-    public String getChatGptResponse(AiRequest request) {
+    public Map<String, Object> getChatGptResponse(AiRequest request) {
         validatePrompt(request.prompt());
         String translatedPrompt = papagoService.getPapago(request.prompt());
         return callOpenAiApi(OPENAI_API_URL, createGptRequestBody(request, translatedPrompt));

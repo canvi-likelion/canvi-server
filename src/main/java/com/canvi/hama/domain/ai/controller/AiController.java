@@ -29,8 +29,11 @@ public class AiController {
     @GptApi
     @PostMapping("/gpt")
     public ResponseEntity<GptResponse> getChatGptResponse(@RequestBody AiRequest request) {
-        String gptResponseContent = gptService.getChatGptResponse(request);
-        GptResponse gptResponse = createGptResponse(gptResponseContent);
+        Map<String, Object> gptResponseContent = gptService.getChatGptResponse(request);
+        List<Map<String, Object>> choices = (List<Map<String, Object>>) gptResponseContent.get("choices");
+        Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+
+        GptResponse gptResponse = createGptResponse(message.get("content").toString());
         return ResponseEntity.status(HttpStatus.CREATED).body(gptResponse);
     }
 
