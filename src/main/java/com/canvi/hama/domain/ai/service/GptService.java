@@ -86,14 +86,26 @@ public class GptService {
     }
 
     private String createDallePrompt(DalleRequest request, String translatedPrompt) {
-        return "I will tell you the contents of my diary, so please analyze them and draw them with emotional and cute pictures. "
-                +
-                "Choose one of the contents of the diary and draw it. My information is as follows. " +
-                "My Gender is " + request.gender() + " " +
-                "My Age is " + request.age() + " " +
-                "My Hair style is " + request.hairStyle() + " " +
-                "My clothes is " + request.clothes() + " " +
-                "The contents of my diary are as follows.. " + translatedPrompt;
+        StringBuilder messageBuilder = new StringBuilder();
+
+        messageBuilder.append(
+                        "I will tell you the contents of my diary, so please analyze them and draw them with emotional and cute pictures. ")
+                .append("Choose one of the contents of the diary and draw it. My information is as follows. ");
+
+        appendAttribute(messageBuilder, "Gender", request.gender());
+        appendAttribute(messageBuilder, "Age", request.age());
+        appendAttribute(messageBuilder, "HairStyle", request.hairStyle());
+        appendAttribute(messageBuilder, "Clothes", request.clothes());
+
+        messageBuilder.append("The contents of my diary are as follows.. ").append(translatedPrompt);
+
+        return messageBuilder.toString();
+    }
+
+    private void appendAttribute(StringBuilder builder, String attributeName, String attributeValue) {
+        if (attributeValue != null && !attributeValue.isBlank()) {
+            builder.append("My ").append(attributeName).append(" is ").append(attributeValue).append(" ");
+        }
     }
 
     private <T> T callOpenAiApi(String url, Map<String, Object> requestBody) {
