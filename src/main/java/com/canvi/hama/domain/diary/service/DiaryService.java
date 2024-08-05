@@ -5,6 +5,7 @@ import com.canvi.hama.domain.diary.dto.request.DiaryRequest;
 import com.canvi.hama.domain.diary.dto.response.CommentGetResponse;
 import com.canvi.hama.domain.diary.dto.response.DiaryGetListResponse;
 import com.canvi.hama.domain.diary.dto.response.DiaryGetResponse;
+import com.canvi.hama.domain.diary.dto.response.SaveDiaryResponse;
 import com.canvi.hama.domain.diary.entity.Comment;
 import com.canvi.hama.domain.diary.entity.Diary;
 import com.canvi.hama.domain.diary.entity.Image;
@@ -14,7 +15,7 @@ import com.canvi.hama.domain.diary.repository.CommentRepository;
 import com.canvi.hama.domain.diary.repository.DiaryRepository;
 import com.canvi.hama.domain.diary.repository.ImageRepository;
 import com.canvi.hama.domain.user.entity.User;
-
+import com.canvi.hama.domain.user.service.UserService;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,11 +28,8 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.List;
-
-import com.canvi.hama.domain.user.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.cglib.core.Local;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -52,10 +50,11 @@ public class DiaryService {
     private final UserService userService;
 
     @Transactional
-    public void saveDiary(UserDetails userDetails, DiaryRequest diaryRequest) {
+    public SaveDiaryResponse saveDiary(UserDetails userDetails, DiaryRequest diaryRequest) {
         User user = userService.getUserFromUserDetails(userDetails);
         Diary diary = Diary.create(user, diaryRequest.title(), diaryRequest.content(), diaryRequest.diaryDate());
         diaryRepository.save(diary);
+        return new SaveDiaryResponse(diary.getId());
     }
 
     @Transactional(readOnly = true)
