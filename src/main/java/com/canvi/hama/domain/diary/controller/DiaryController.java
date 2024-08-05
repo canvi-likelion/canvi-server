@@ -7,6 +7,7 @@ import com.canvi.hama.domain.diary.dto.request.ImageSaveRequest;
 import com.canvi.hama.domain.diary.dto.response.CommentGetResponse;
 import com.canvi.hama.domain.diary.dto.response.DiaryGetListResponse;
 import com.canvi.hama.domain.diary.dto.response.DiaryGetResponse;
+import com.canvi.hama.domain.diary.dto.response.SaveDiaryResponse;
 import com.canvi.hama.domain.diary.enums.DiaryResponseStatus;
 import com.canvi.hama.domain.diary.service.DiaryService;
 import com.canvi.hama.domain.diary.swagger.comment.GetCommentApi;
@@ -46,10 +47,9 @@ public class DiaryController {
 
     @SaveDiaryApi
     @PostMapping
-    public ResponseEntity<DiaryResponseStatus> saveDiary(@AuthenticationPrincipal UserDetails userDetails,
+    public BaseResponse<SaveDiaryResponse> saveDiary(@AuthenticationPrincipal UserDetails userDetails,
                                                          @RequestBody @Valid DiaryRequest diaryRequest) {
-        diaryService.saveDiary(userDetails, diaryRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
+        return new BaseResponse<>(diaryService.saveDiary(userDetails, diaryRequest));
     }
 
     @GetDiaryApi
