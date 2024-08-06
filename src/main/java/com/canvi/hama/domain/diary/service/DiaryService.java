@@ -84,17 +84,17 @@ public class DiaryService {
 
     @Transactional(readOnly = true)
     public CommentGetResponse getCommentByDiaryId(Long diaryId) {
-        Diary diary = diaryRepository.findById(diaryId)
+        Diary diary = getDiaryById(diaryId);
+        Comment comment = commentRepository.findByDiaryId(diaryId)
                 .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
 
-        CommentGetResponse commentGetResponse = new CommentGetResponse(diary.getComment().getId(), diary.getComment().getComment());
+        CommentGetResponse commentGetResponse = new CommentGetResponse(comment.getId(),comment.getComment());
         return commentGetResponse;
     }
 
     @Transactional
     public void saveComment(Long diaryId, String comment) {
-        Diary diary = diaryRepository.findById(diaryId)
-                .orElseThrow(() -> new DiaryException(DiaryResponseStatus.NOT_FOUND));
+        Diary diary = getDiaryById(diaryId);
 
         Comment saveComment = Comment.create(diary, comment);
         try {

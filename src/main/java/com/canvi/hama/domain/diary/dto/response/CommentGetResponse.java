@@ -4,6 +4,6 @@ import com.canvi.hama.domain.diary.entity.Comment;
 
 public record CommentGetResponse(Long id, String comment) {
     public CommentGetResponse(Comment comment) {
-        this(comment.getId(), comment.getComment());
-    }
-}
+        this(comment != null ? comment.getId() : null,
+                comment != null ? comment.getComment() : null);
+    }}

@@ -4,6 +4,7 @@ import com.canvi.hama.domain.diary.entity.Image;
 
 public record ImageGetResponse(Long id, String url) {
     public ImageGetResponse(Image image) {
-        this(image.getId(), image.getUrl());
+        this(image != null ? image.getId() : null,
+                image != null ? image.getUrl() : null);
     }
 }
