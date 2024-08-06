@@ -149,12 +149,13 @@ public class GptService {
         messageBuilder.append(
                         "I will tell you the contents of my diary, so please analyze them and draw them with emotional and cute pictures. ")
                 .append("Choose one of the contents of the diary and draw it. My information is as follows. ");
+        String translatedCloths = papagoService.getPapago(request.clothes());
 
         appendAttribute(messageBuilder, "pictureStyle", request.pictureStyle());
         appendAttribute(messageBuilder, "Gender", request.gender());
         appendAttribute(messageBuilder, "weather", request.weather());
         appendAttribute(messageBuilder, "HairStyle", request.hairStyle());
-        appendAttribute(messageBuilder, "Clothes", request.clothes());
+        appendAttribute(messageBuilder, "Clothes", translatedCloths);
 
         messageBuilder.append("The contents of my diary are as follows.. ").append(translatedPrompt);
 
