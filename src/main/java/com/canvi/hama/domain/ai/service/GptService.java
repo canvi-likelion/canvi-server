@@ -7,9 +7,11 @@ import com.canvi.hama.domain.ai.exception.AiException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
@@ -40,6 +42,19 @@ public class GptService {
         return callOpenAiApi(OPENAI_API_URL, createGptRequestBody(request, translatedPrompt));
     }
 
+    public Map<String, Object> getHelpGptResponse(AiRequest request) {
+        validatePrompt(request.prompt());
+        String translatedPrompt = papagoService.getPapago(request.prompt());
+        return callOpenAiApi(OPENAI_API_URL, createHelpRequestBody(request, translatedPrompt));
+    }
+
+    public Map<String, Object> getSummaryGptResponse(AiRequest request) {
+        validatePrompt(request.prompt());
+        String translatedPrompt = papagoService.getPapago(request.prompt());
+        return callOpenAiApi(OPENAI_API_URL, createSummaryRequestBody(request, translatedPrompt));
+    }
+
+
     public Map<String, Object> getDallEResponse(DalleRequest request) {
         validatePrompt(request.prompt());
         String translatedPrompt = papagoService.getPapago(request.prompt());
@@ -66,6 +81,35 @@ public class GptService {
         );
     }
 
+    private Map<String, Object> createHelpRequestBody(AiRequest request, String translatedPrompt) {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", "gpt-4o");
+        requestBody.put("messages", createHelpGptMessages(request, translatedPrompt));
+        return requestBody;
+    }
+
+    private Map<String, Object> createSummaryRequestBody(AiRequest request, String translatedPrompt) {
+        Map<String, Object> requestBody = new HashMap<>();
+        requestBody.put("model", "gpt-4o");
+        requestBody.put("messages", createSummaryGptMessages(request, translatedPrompt));
+        return requestBody;
+    }
+
+
+    private List<Map<String, String>> createHelpGptMessages(AiRequest request, String translatedPrompt) {
+        return List.of(
+                Map.of("role", "system", "content", createHelpSystemMessage(request)),
+                Map.of("role", "user", "content", translatedPrompt)
+        );
+    }
+
+    private List<Map<String, String>> createSummaryGptMessages(AiRequest request, String translatedPrompt) {
+        return List.of(
+                Map.of("role", "system", "content", createSummarySystemMessage(request)),
+                Map.of("role", "user", "content", "It's about the chat.\n" + translatedPrompt)
+        );
+    }
+
     private String createSystemMessage(AiRequest request) {
         return "You are assistant who helps me write my diary. " +
                 "Please analyze the user's diary in detail and give me feedback. " +
@@ -73,6 +117,18 @@ public class GptService {
                 "Tell me in a warm way. " +
                 "Tell me in long sentences, not in a list " +
                 "Please just write it in text. " +
+                "Please answer in honorifics in Korean.";
+    }
+
+    private String createHelpSystemMessage(AiRequest request) {
+        return "User name is " + request.username() + " " +
+                "The user is having a hard time keeping a diary.\n" +
+                "You should ask or inform the user of questions or contents that can help you write a diary, and also inform the user of questions that can help you write a diary.";
+    }
+
+    private String createSummarySystemMessage(AiRequest request) {
+        return "User name is " + request.username() + " " +
+                "This is the conversation I had with ai through chat. Briefly summarize it in sentences\n" +
                 "Please answer in honorifics in Korean.";
     }
 

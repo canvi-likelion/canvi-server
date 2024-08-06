@@ -37,6 +37,28 @@ public class AiController {
         return ResponseEntity.status(HttpStatus.CREATED).body(gptResponse);
     }
 
+    @GptApi
+    @PostMapping("/gpt/help")
+    public ResponseEntity<GptResponse> getHelpGptResponse(@RequestBody AiRequest request) {
+        Map<String, Object> gptResponseContent = gptService.getHelpGptResponse(request);
+        List<Map<String, Object>> choices = (List<Map<String, Object>>) gptResponseContent.get("choices");
+        Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+
+        GptResponse gptResponse = createGptResponse(message.get("content").toString());
+        return ResponseEntity.status(HttpStatus.CREATED).body(gptResponse);
+    }
+
+    @GptApi
+    @PostMapping("/gpt/summary")
+    public ResponseEntity<GptResponse> getSummaryGptResponse(@RequestBody AiRequest request) {
+        Map<String, Object> gptResponseContent = gptService.getSummaryGptResponse(request);
+        List<Map<String, Object>> choices = (List<Map<String, Object>>) gptResponseContent.get("choices");
+        Map<String, Object> message = (Map<String, Object>) choices.get(0).get("message");
+
+        GptResponse gptResponse = createGptResponse(message.get("content").toString());
+        return ResponseEntity.status(HttpStatus.CREATED).body(gptResponse);
+    }
+
     @DalleApi
     @PostMapping("/dalle")
     public ResponseEntity<DalleResponse> getDallEResponse(@RequestBody DalleRequest request) {
