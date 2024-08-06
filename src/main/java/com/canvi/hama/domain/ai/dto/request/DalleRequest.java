@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 public record DalleRequest(
         String gender,
 
-        String age,
+        String weather,
 
         String hairStyle,
 

@@ -152,7 +152,7 @@ public class GptService {
 
         appendAttribute(messageBuilder, "pictureStyle", request.pictureStyle());
         appendAttribute(messageBuilder, "Gender", request.gender());
-        appendAttribute(messageBuilder, "Age", request.age());
+        appendAttribute(messageBuilder, "weather", request.weather());
         appendAttribute(messageBuilder, "HairStyle", request.hairStyle());
         appendAttribute(messageBuilder, "Clothes", request.clothes());
 
