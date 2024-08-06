@@ -11,6 +11,8 @@ public record DalleRequest(
 
         String clothes,
 
+        String pictureStyle,
+
         @NotBlank(message = "prompt를 입력하세요.")
         String prompt
 ) {

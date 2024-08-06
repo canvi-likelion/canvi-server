@@ -150,6 +150,7 @@ public class GptService {
                         "I will tell you the contents of my diary, so please analyze them and draw them with emotional and cute pictures. ")
                 .append("Choose one of the contents of the diary and draw it. My information is as follows. ");
 
+        appendAttribute(messageBuilder, "pictureStyle", request.pictureStyle());
         appendAttribute(messageBuilder, "Gender", request.gender());
         appendAttribute(messageBuilder, "Age", request.age());
         appendAttribute(messageBuilder, "HairStyle", request.hairStyle());
