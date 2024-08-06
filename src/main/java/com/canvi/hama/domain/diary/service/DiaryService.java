@@ -41,7 +41,7 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class DiaryService {
 
-    private static final String IMAGE_DIRECTORY = "./user_images";
+    private static final String IMAGE_DIRECTORY = "/home/anhye0n/web/hama/backend/user_images";
     private static final String IMAGE_FILE_FORMAT = "image_%d.jpg";
 
     private final DiaryRepository diaryRepository;
@@ -61,7 +61,7 @@ public class DiaryService {
     public DiaryGetListResponse getDiariesByUsername(UserDetails userDetails) {
         User user = userService.getUserFromUserDetails(userDetails);
 
-        List<Diary> diaries =  diaryRepository.findAllByUser(user);
+        List<Diary> diaries = diaryRepository.findAllByUser(user);
         List<DiaryGetResponse> diaryGetResponseList = DiaryGetResponse.fromDiaryList(diaries);
 
         return new DiaryGetListResponse(diaryGetResponseList);
@@ -149,15 +149,30 @@ public class DiaryService {
         try {
             URL url = new URL(imageUrl);
             Path filePath = getImageFilePath(diaryId);
-            Files.createDirectories(filePath.getParent());
 
+            // 디렉토리 생성 로그 추가
+            System.out.println("Creating directories for file path: " + filePath.getParent());
+
+            try {
+                Files.createDirectories(filePath.getParent());
+            } catch (IOException e) {
+                System.out.println("Failed to create directories for file path: " + e.getMessage());
+                throw new DiaryException(DiaryResponseStatus.INTERNAL_SERVER_ERROR);
+            }
+
+            System.out.println("Downloading image from URL: " + imageUrl);
             try (InputStream in = url.openStream();
                  OutputStream out = Files.newOutputStream(filePath)) {
                 in.transferTo(out);
             }
 
+            System.out.println("Image downloaded and saved to: " + filePath);
             return filePath;
+        } catch (MalformedURLException e) {
+            System.out.println("Invalid URL: " + e.getMessage());
+            throw new DiaryException(DiaryResponseStatus.INTERNAL_SERVER_ERROR);
         } catch (IOException e) {
+            System.out.println("Failed to download and save image: " + e.getMessage());
             throw new DiaryException(DiaryResponseStatus.INTERNAL_SERVER_ERROR);
         }
     }

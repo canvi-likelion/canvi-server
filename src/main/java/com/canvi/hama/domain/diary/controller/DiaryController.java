@@ -87,6 +87,7 @@ public class DiaryController {
             @PathVariable("diaryId") @Valid @NotNull(message = "diaryId를 입력하세요.") Long diaryId,
             @RequestBody @Valid ImageSaveRequest imageSaveRequest) {
 
+        System.out.println("debug 1");
         diaryService.saveImageFromUrl(diaryId, imageSaveRequest.imageUrl());
 
         return ResponseEntity.status(HttpStatus.CREATED).body(DiaryResponseStatus.CREATED);
