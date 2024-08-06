@@ -123,7 +123,9 @@ public class GptService {
     private String createHelpSystemMessage(AiRequest request) {
         return "User name is " + request.username() + " " +
                 "The user is having a hard time keeping a diary.\n" +
-                "You should ask or inform the user of questions or contents that can help you write a diary, and also inform the user of questions that can help you write a diary.";
+                "You should ask or inform the user of questions or contents that can help you write a diary, and also inform the user of questions that can help you write a diary.\n" +
+                "Please answer in honorifics in Korean.";
+
     }
 
     private String createSummarySystemMessage(AiRequest request) {
