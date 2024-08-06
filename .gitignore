@@ -6,7 +6,7 @@
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
 
 #custom ignore
-**/*.yml
+#**/*.yml
 **/*.properties
 
 src/main/generated
@@ -221,5 +221,7 @@ gradle-app.setting
 ### Gradle Patch ###
 # Java heap dump
 *.hprof
+
+*.jpg
 
 # End of https://www.toptal.com/developers/gitignore/api/java,intellij+all,windows,macos,linux,gradle
